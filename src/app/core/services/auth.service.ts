@@ -8,12 +8,7 @@ import {
   signOut,
   user,
 } from '@angular/fire/auth';
-import {
-  Firestore,
-  doc,
-  setDoc,
-  serverTimestamp,
-} from '@angular/fire/firestore';
+import { Firestore, doc, setDoc, serverTimestamp } from '@angular/fire/firestore';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { computed } from '@angular/core';
 import { UserProfile } from '../../models/user-profile.model';
@@ -81,8 +76,7 @@ export class AuthService {
     await setDoc(
       doc(this.firestore, 'users', uid),
       { lastLoginAt: serverTimestamp() },
-      { merge: true }
+      { merge: true },
     );
   }
 }
-

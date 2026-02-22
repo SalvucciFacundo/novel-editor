@@ -1,0 +1,156 @@
+<section class="projects-page">
+
+  <!-- ── HEADER ─────────────────────────────────── -->
+  <header class="projects-header">
+    <div class="projects-header__brand">
+      <span class="projects-header__logo">✦</span>
+      <span class="projects-header__title">Novel Editor</span>
+    </div>
+
+    <div class="projects-header__user">
+      @if (currentUser(); as u) {
+        @if (u.photoURL) {
+          <img class="projects-header__avatar" [src]="u.photoURL" [alt]="u.displayName ?? ''" />
+        } @else {
+          <div class="projects-header__avatar projects-header__avatar--fallback">
+            {{ (u.displayName ?? 'U')[0] }}
+          </div>
+        }
+        <span class="projects-header__name">{{ u.displayName }}</span>
+      }
+      <button class="btn-ghost btn-sm" (click)="logout()">Salir</button>
+    </div>
+  </header>
+
+  <!-- ── CONTENIDO ──────────────────────────────── -->
+  <main class="projects-content">
+    <div class="projects-content__top">
+      <h2 class="projects-content__heading">Mis Novelas</h2>
+      <button class="btn-primary" (click)="openModal()">
+        <span>+</span> Nueva novela
+      </button>
+    </div>
+
+    <!-- Loading -->
+    @if (loading()) {
+      <div class="projects-grid">
+        @for (_ of skeletons; track $index) {
+          <div class="novel-card novel-card--skeleton"></div>
+        }
+      </div>
+    }
+
+    <!-- Lista de novelas -->
+    @else if (novels().length > 0) {
+      <ul class="projects-grid" role="list">
+        @for (novel of novels(); track novel.id) {
+          <li class="novel-card" (click)="openNovel(novel.id)" tabindex="0"
+              (keydown.enter)="openNovel(novel.id)" role="button"
+              [attr.aria-label]="'Abrir ' + novel.title">
+            <div class="novel-card__body">
+              <h3 class="novel-card__title">{{ novel.title }}</h3>
+              <p class="novel-card__desc">{{ novel.description || 'Sin descripción' }}</p>
+            </div>
+            <footer class="novel-card__footer">
+              <span class="novel-card__chapters">
+                {{ novel.chapterCount }} cap{{ novel.chapterCount === 1 ? 'ítulo' : 'ítulos' }}
+              </span>
+              <button class="btn-icon btn-danger"
+                      (click)="confirmDelete($event, novel)"
+                      aria-label="Eliminar novela">
+                🗑
+              </button>
+            </footer>
+          </li>
+        }
+      </ul>
+    }
+
+    <!-- Empty state -->
+    @else {
+      <div class="projects-empty">
+        <div class="projects-empty__icon">📖</div>
+        <h3 class="projects-empty__title">Todavía no tenés ninguna novela</h3>
+        <p class="projects-empty__text">Creá tu primera novela y empezá a escribir.</p>
+        <button class="btn-primary" (click)="openModal()">+ Crear novela</button>
+      </div>
+    }
+  </main>
+
+</section>
+
+<!-- ── MODAL NUEVA NOVELA ─────────────────────── -->
+@if (showModal()) {
+  <div class="modal-backdrop" (click)="closeModal()" role="dialog" aria-modal="true"
+       aria-labelledby="modal-title">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <header class="modal__header">
+        <h3 id="modal-title" class="modal__title">Nueva novela</h3>
+        <button class="btn-icon" (click)="closeModal()" aria-label="Cerrar">✕</button>
+      </header>
+
+      <form class="modal__form" (ngSubmit)="createNovel()" #form="ngForm">
+        <div class="form-field">
+          <label for="novel-title" class="form-label">Título <span class="required">*</span></label>
+          <input
+            id="novel-title"
+            class="form-input"
+            type="text"
+            [(ngModel)]="newTitle"
+            name="title"
+            required
+            maxlength="120"
+            placeholder="Ej: El Retorno del Héroe Caído"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="novel-desc" class="form-label">Descripción</label>
+          <textarea
+            id="novel-desc"
+            class="form-input form-input--textarea"
+            [(ngModel)]="newDescription"
+            name="description"
+            rows="3"
+            maxlength="500"
+            placeholder="Una breve sinopsis de tu historia..."
+          ></textarea>
+        </div>
+
+        @if (modalError()) {
+          <p class="form-error" role="alert">{{ modalError() }}</p>
+        }
+
+        <div class="modal__actions">
+          <button type="button" class="btn-ghost" (click)="closeModal()">Cancelar</button>
+          <button type="submit" class="btn-primary" [disabled]="modalLoading() || !newTitle.trim()">
+            @if (modalLoading()) { Creando... } @else { Crear novela }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- ── MODAL CONFIRMAR ELIMINACIÓN ────────────── -->
+@if (novelToDelete()) {
+  <div class="modal-backdrop" (click)="cancelDelete()" role="dialog" aria-modal="true"
+       aria-labelledby="delete-title">
+    <div class="modal modal--sm" (click)="$event.stopPropagation()">
+      <header class="modal__header">
+        <h3 id="delete-title" class="modal__title">Eliminar novela</h3>
+      </header>
+      <p class="modal__body-text">
+        ¿Estás seguro de que querés eliminar <strong>{{ novelToDelete()!.title }}</strong>?
+        Esta acción no se puede deshacer.
+      </p>
+      <div class="modal__actions">
+        <button class="btn-ghost" (click)="cancelDelete()">Cancelar</button>
+        <button class="btn-danger-solid" (click)="deleteNovel()" [disabled]="modalLoading()">
+          @if (modalLoading()) { Eliminando... } @else { Sí, eliminar }
+        </button>
+      </div>
+    </div>
+  </div>
+}
