@@ -1,0 +1,108 @@
+<aside class="ai-chat">
+
+    <!-- ── HEADER ─────────────────────────────────── -->
+    <header class="ai-chat__header">
+        <span class="ai-chat__title">✦ IA</span>
+
+        <!-- Mode selector -->
+        <div class="mode-toggle">
+            <button [class.active]="mode() === 'query'" (click)="setMode('query')">Consulta</button>
+            <button [class.active]="mode() === 'agent'" (click)="setMode('agent')">Agente</button>
+        </div>
+
+        <button class="icon-btn-sm" (click)="showConfig.set(!showConfig())" title="Configurar IA">⚙</button>
+    </header>
+
+    <!-- ── CONFIG PANEL ────────────────────────────── -->
+    @if (showConfig()) {
+    <div class="ai-chat__config">
+        <label class="config-label">Proveedor</label>
+        <select class="config-select" (change)="selectProvider($any($event.target).value)">
+            @for (p of providers; track p.id) {
+            <option [value]="p.id">{{ p.label }}</option>
+            }
+        </select>
+
+        <label class="config-label">Modelo</label>
+        <select class="config-select" [ngModel]="selectedModel()" (ngModelChange)="selectedModel.set($event)">
+            @for (m of selectedProvider().models; track m) {
+            <option [value]="m">{{ m }}</option>
+            }
+        </select>
+
+        @if (selectedProvider().id !== 'ollama') {
+        <label class="config-label">API Key</label>
+        <input class="config-input" type="password" [(ngModel)]="apiKey" placeholder="sk-..." autocomplete="off" />
+        } @else {
+        <p class="config-hint">Ollama debe estar corriendo en localhost:11434</p>
+        }
+    </div>
+    }
+
+    <!-- ── MESSAGES ────────────────────────────────── -->
+    <div class="ai-chat__messages" #messagesEl>
+        @if (messages().length === 0) {
+        <div class="ai-chat__empty">
+            <p>{{ mode() === 'agent' ? '🤖 Modo agente activado. Puedo modificar tu texto.' : '💬 Hacé una consulta
+                sobre tu historia.' }}</p>
+        </div>
+        }
+
+        @for (msg of messages(); track $index) {
+        <div class="message" [class.message--user]="msg.role === 'user'"
+            [class.message--assistant]="msg.role === 'assistant'">
+            @if (msg.imageBase64) {
+            <img class="message__image" [src]="msg.imageBase64" alt="Imagen adjunta" />
+            }
+            <p class="message__content">{{ msg.content }}</p>
+
+            @if (msg.role === 'assistant' && mode() === 'agent') {
+            <button class="message__apply-btn" (click)="applyToEditor(msg.content)" title="Insertar en el editor">
+                ↓ Insertar en editor
+            </button>
+            }
+        </div>
+        }
+
+        @if (loading()) {
+        <div class="message message--assistant">
+            <div class="message__typing">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        }
+    </div>
+
+    <!-- ── INPUT ──────────────────────────────────── -->
+    <div class="ai-chat__input-area">
+        <!-- Preview de imagen -->
+        @if (imagePreview()) {
+        <div class="image-preview">
+            <img [src]="imagePreview()" alt="Imagen seleccionada" />
+            <button class="image-preview__remove" (click)="removeImage()">✕</button>
+        </div>
+        }
+
+        <div class="ai-chat__input-row">
+            <!-- Upload imagen -->
+            <label class="btn-attach" title="Adjuntar imagen" aria-label="Adjuntar imagen">
+                📎
+                <input #fileInput type="file" accept="image/*" class="sr-only" (change)="onFileSelected($event)" />
+            </label>
+
+            <textarea class="ai-chat__textarea" [(ngModel)]="userInput" placeholder="Escribí tu consulta..." rows="2"
+                (keydown.enter)="onEnterKey($event)">
+      </textarea>
+
+            <button class="btn-send" (click)="sendMessage()"
+                [disabled]="loading() || (!userInput.trim() && !imagePreview())" aria-label="Enviar">
+                ➤
+            </button>
+        </div>
+
+        <div class="ai-chat__footer-actions">
+            <button class="link-btn" (click)="clearChat()">Limpiar chat</button>
+        </div>
+    </div>
+
+</aside>

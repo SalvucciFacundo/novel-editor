@@ -1,0 +1,46 @@
+<div class="tab">
+    <header class="tab__header">
+        <span class="tab__title">Capítulos</span>
+        <button class="tab__add-btn" (click)="startCreate()" title="Nuevo capítulo">+</button>
+    </header>
+
+    <!-- Nuevo capítulo inline -->
+    @if (creating()) {
+    <div class="tab__inline-form">
+        <input class="tab__inline-input" type="text" [(ngModel)]="newTitle" (keydown.enter)="confirmCreate()"
+            (keydown.escape)="cancelCreate()" autofocus placeholder="Nombre del capítulo" />
+        <div class="tab__inline-actions">
+            <button class="btn-confirm" (click)="confirmCreate()">✓</button>
+            <button class="btn-cancel" (click)="cancelCreate()">✕</button>
+        </div>
+    </div>
+    }
+
+    <!-- Lista -->
+    <ul class="tab__list" role="list">
+        @for (chapter of chapters(); track chapter.id) {
+        <li class="chapter-item" [class.active]="state.activeChapter()?.id === chapter.id"
+            (click)="loadChapter(chapter)" tabindex="0" (keydown.enter)="loadChapter(chapter)" role="button"
+            [attr.aria-label]="'Abrir ' + chapter.title">
+            @if (renamingId() === chapter.id) {
+            <input class="tab__inline-input tab__inline-input--sm" type="text" [(ngModel)]="renameTitle"
+                (keydown.enter)="confirmRename(chapter.id)" (keydown.escape)="cancelRename()"
+                (click)="$event.stopPropagation()" autofocus />
+            } @else {
+            <span class="chapter-item__title">{{ chapter.title }}</span>
+            <span class="chapter-item__words">{{ chapter.wordCount }} pal.</span>
+            }
+
+            <div class="chapter-item__actions" (click)="$event.stopPropagation()">
+                <button class="icon-btn" (click)="startRename(chapter)" title="Renombrar">✏</button>
+                <button class="icon-btn icon-btn--danger" (click)="deleteChapter($event, chapter.id)"
+                    title="Eliminar">🗑</button>
+            </div>
+        </li>
+        }
+
+        @if (chapters().length === 0 && !creating()) {
+        <li class="tab__empty">Sin capítulos aún</li>
+        }
+    </ul>
+</div>

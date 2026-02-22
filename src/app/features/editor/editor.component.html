@@ -1,0 +1,58 @@
+<div class="editor-shell">
+
+    <!-- ── LEFT PANEL ────────────────────────────── -->
+    <app-left-panel />
+
+    <!-- ── CENTER ────────────────────────────────── -->
+    <div class="editor-center">
+
+        <!-- Top bar -->
+        <header class="editor-topbar">
+            <div class="editor-topbar__left">
+                <span class="editor-topbar__logo">✦</span>
+                <span class="editor-topbar__title">{{ novelTitle() }}</span>
+                @if (activeChapter()) {
+                <span class="editor-topbar__sep">›</span>
+                <span class="editor-topbar__chapter">{{ activeChapter()!.title }}</span>
+                }
+            </div>
+
+            <div class="editor-topbar__actions">
+                @if (hasUnsaved()) {
+                <span class="editor-topbar__unsaved">● Sin guardar</span>
+                }
+
+                <button class="btn-save" (click)="save()" [disabled]="saving() || !activeChapter()">
+                    @if (saving()) { Guardando... } @else { 💾 Guardar }
+                </button>
+
+                <div class="export-menu">
+                    <button class="btn-export" [disabled]="!activeChapter()">Exportar ▾</button>
+                    <div class="export-menu__dropdown">
+                        <button (click)="exportTxt()">📄 TXT</button>
+                        <button (click)="exportHtml()">🌐 HTML</button>
+                    </div>
+                </div>
+
+                <button class="btn-icon-sm" (click)="logout()" title="Cerrar sesión">⏻</button>
+            </div>
+        </header>
+
+        <!-- Editor area -->
+        <div class="editor-body">
+            @if (activeChapter()) {
+            <app-text-editor />
+            } @else {
+            <div class="editor-empty">
+                <div class="editor-empty__icon">📝</div>
+                <p class="editor-empty__text">Seleccioná un capítulo para empezar a escribir</p>
+            </div>
+            }
+        </div>
+
+    </div>
+
+    <!-- ── RIGHT PANEL — AI CHAT ─────────────────── -->
+    <app-ai-chat />
+
+</div>

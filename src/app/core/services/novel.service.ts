@@ -44,7 +44,10 @@ export class NovelService {
   }
 
   /** Actualiza campos de una novela */
-  async update(id: string, data: Partial<Pick<Novel, 'title' | 'description' | 'tags'>>): Promise<void> {
+  async update(
+    id: string,
+    data: Partial<Pick<Novel, 'title' | 'description' | 'tags'>>,
+  ): Promise<void> {
     const ref = doc(this.firestore, 'novels', id);
     await updateDoc(ref, { ...data, updatedAt: serverTimestamp() });
   }

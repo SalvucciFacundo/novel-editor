@@ -1,0 +1,59 @@
+<div class="tab">
+    <header class="tab__header">
+        <span class="tab__title">Personajes</span>
+        <button class="tab__add-btn" (click)="startCreate()" title="Nuevo personaje">+</button>
+    </header>
+
+    <p class="tab__hint">Click en un nombre para insertarlo en el cursor</p>
+
+    <!-- Formulario nuevo personaje -->
+    @if (creating()) {
+    <div class="tab__inline-form tab__inline-form--col">
+        <input class="tab__inline-input" type="text" [(ngModel)]="newName" placeholder="Nombre *"
+            (keydown.escape)="cancelCreate()" autofocus />
+        <input class="tab__inline-input" type="text" [(ngModel)]="newRole" placeholder="Rol (ej: protagonista)"
+            (keydown.enter)="confirmCreate()" />
+        <div class="tab__inline-actions">
+            <button class="btn-confirm" (click)="confirmCreate()">✓ Agregar</button>
+            <button class="btn-cancel" (click)="cancelCreate()">✕</button>
+        </div>
+    </div>
+    }
+
+    <!-- Lista -->
+    <ul class="tab__list" role="list">
+        @for (character of characters(); track character.id) {
+        <li class="char-item">
+            @if (editingId() === character.id) {
+            <div class="tab__inline-form tab__inline-form--col">
+                <input class="tab__inline-input" type="text" [(ngModel)]="editName" placeholder="Nombre"
+                    (keydown.escape)="cancelEdit()" autofocus />
+                <input class="tab__inline-input" type="text" [(ngModel)]="editRole" placeholder="Rol"
+                    (keydown.enter)="confirmEdit(character.id)" />
+                <div class="tab__inline-actions">
+                    <button class="btn-confirm" (click)="confirmEdit(character.id)">✓</button>
+                    <button class="btn-cancel" (click)="cancelEdit()">✕</button>
+                </div>
+            </div>
+            } @else {
+            <button class="char-item__name" (click)="insertName(character.name)"
+                [title]="'Insertar «' + character.name + '» en el editor'">
+                {{ character.name }}
+            </button>
+            @if (character.role) {
+            <span class="char-item__role">{{ character.role }}</span>
+            }
+            <div class="char-item__actions">
+                <button class="icon-btn" (click)="startEdit(character)" title="Editar">✏</button>
+                <button class="icon-btn icon-btn--danger" (click)="deleteCharacter($event, character.id)"
+                    title="Eliminar">🗑</button>
+            </div>
+            }
+        </li>
+        }
+
+        @if (characters().length === 0 && !creating()) {
+        <li class="tab__empty">Sin personajes aún</li>
+        }
+    </ul>
+</div>

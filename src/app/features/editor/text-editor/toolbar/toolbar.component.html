@@ -1,0 +1,51 @@
+<div class="toolbar">
+    <!-- Font selector -->
+    <select class="toolbar__font-select" (change)="setFont($any($event.target).value)" aria-label="Fuente">
+        @for (font of fonts; track font.value) {
+        <option [value]="font.value">{{ font.label }}</option>
+        }
+    </select>
+
+    <div class="toolbar__sep"></div>
+
+    <!-- Formato de texto -->
+    <button class="toolbar__btn" [class.active]="isBold()" (click)="toggleBold()" title="Negrita (Ctrl+B)"
+        aria-label="Negrita">
+        <strong>B</strong>
+    </button>
+    <button class="toolbar__btn toolbar__btn--italic" [class.active]="isItalic()" (click)="toggleItalic()"
+        title="Cursiva (Ctrl+I)" aria-label="Cursiva">
+        <em>I</em>
+    </button>
+    <button class="toolbar__btn toolbar__btn--underline" [class.active]="isUnderline()" (click)="toggleUnderline()"
+        title="Subrayado (Ctrl+U)" aria-label="Subrayado">
+        <u>U</u>
+    </button>
+
+    <div class="toolbar__sep"></div>
+
+    <!-- Headings -->
+    <button class="toolbar__btn" [class.active]="isH1()" (click)="toggleH1()" title="Título 1" aria-label="Título 1">
+        H1
+    </button>
+    <button class="toolbar__btn" [class.active]="isH2()" (click)="toggleH2()" title="Título 2" aria-label="Título 2">
+        H2
+    </button>
+    <button class="toolbar__btn" [class.active]="isBlockquote()" (click)="toggleBlockquote()" title="Cita"
+        aria-label="Cita">
+        ❝
+    </button>
+
+    <div class="toolbar__sep"></div>
+
+    <!-- Símbolos especiales -->
+    <div class="toolbar__symbols-wrapper">
+        <button class="toolbar__btn" [class.active]="showSymbols()" (click)="toggleSymbols()" title="Insertar símbolo"
+            aria-label="Símbolos">
+            ✦ Ω
+        </button>
+        @if (showSymbols()) {
+        <app-symbols-popup (symbolSelected)="insertSymbol($event)" (close)="showSymbols.set(false)" />
+        }
+    </div>
+</div>

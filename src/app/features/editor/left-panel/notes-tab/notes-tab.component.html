@@ -1,0 +1,71 @@
+<div class="tab">
+    <header class="tab__header">
+        <span class="tab__title">Notas</span>
+        <button class="tab__add-btn" (click)="startCreate()" title="Nueva nota">+</button>
+    </header>
+
+    <!-- Formulario nueva nota -->
+    @if (creating()) {
+    <div class="tab__inline-form tab__inline-form--col">
+        <input class="tab__inline-input" type="text" [(ngModel)]="newTitle" placeholder="Título *" autofocus
+            (keydown.escape)="cancelCreate()" />
+        <textarea class="tab__inline-input tab__inline-input--textarea" [(ngModel)]="newContent"
+            placeholder="Contenido..." rows="3"></textarea>
+        <div class="tab__inline-actions">
+            <button class="btn-confirm" (click)="confirmCreate()">✓ Guardar</button>
+            <button class="btn-cancel" (click)="cancelCreate()">✕</button>
+        </div>
+    </div>
+    }
+
+    <!-- Lista de notas -->
+    <ul class="tab__list" role="list">
+        @for (note of notes(); track note.id) {
+        <li class="note-item" (click)="openNote(note)" tabindex="0" (keydown.enter)="openNote(note)" role="button"
+            [attr.aria-label]="'Abrir nota: ' + note.title">
+            <span class="note-item__title">{{ note.title }}</span>
+            <p class="note-item__preview">{{ note.content | slice:0:60 }}{{ note.content.length > 60 ? '…' : '' }}</p>
+        </li>
+        }
+
+        @if (notes().length === 0 && !creating()) {
+        <li class="tab__empty">Sin notas aún</li>
+        }
+    </ul>
+</div>
+
+<!-- Modal de nota -->
+@if (modalNote()) {
+<div class="note-modal-backdrop" (click)="closeModal()" role="dialog" aria-modal="true">
+    <div class="note-modal" (click)="$event.stopPropagation()">
+        <header class="note-modal__header">
+            @if (editing()) {
+            <input class="note-modal__title-input" [(ngModel)]="editTitle" placeholder="Título" />
+            } @else {
+            <h3 class="note-modal__title">{{ modalNote()!.title }}</h3>
+            }
+            <div class="note-modal__header-actions">
+                @if (!editing()) {
+                <button class="icon-btn" (click)="startEdit()" title="Editar">✏</button>
+                <button class="icon-btn icon-btn--danger" (click)="deleteNote(modalNote()!.id)"
+                    title="Eliminar">🗑</button>
+                }
+                <button class="icon-btn" (click)="closeModal()" title="Cerrar">✕</button>
+            </div>
+        </header>
+
+        <div class="note-modal__body">
+            @if (editing()) {
+            <textarea class="note-modal__textarea" [(ngModel)]="editContent" rows="12"
+                placeholder="Escribí tu nota..."></textarea>
+            <div class="note-modal__footer">
+                <button class="btn-cancel" (click)="editing.set(false)">Cancelar</button>
+                <button class="btn-confirm-lg" (click)="saveEdit()">Guardar</button>
+            </div>
+            } @else {
+            <p class="note-modal__content">{{ modalNote()!.content || 'Sin contenido.' }}</p>
+            }
+        </div>
+    </div>
+</div>
+}

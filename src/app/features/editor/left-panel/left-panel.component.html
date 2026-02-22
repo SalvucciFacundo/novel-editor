@@ -1,0 +1,22 @@
+<aside class="left-panel">
+
+    <!-- Tab buttons -->
+    <nav class="left-panel__tabs" role="tablist" aria-label="Panel lateral">
+        <button role="tab" [attr.aria-selected]="activeTab() === 'chapters'" [class.active]="activeTab() === 'chapters'"
+            (click)="setTab('chapters')" title="Capítulos">📖</button>
+        <button role="tab" [attr.aria-selected]="activeTab() === 'characters'"
+            [class.active]="activeTab() === 'characters'" (click)="setTab('characters')" title="Personajes">👤</button>
+        <button role="tab" [attr.aria-selected]="activeTab() === 'notes'" [class.active]="activeTab() === 'notes'"
+            (click)="setTab('notes')" title="Notas">📝</button>
+    </nav>
+
+    <!-- Tab content -->
+    <div class="left-panel__content" role="tabpanel">
+        @switch (activeTab()) {
+        @case ('chapters') { <app-chapters-tab /> }
+        @case ('characters') { <app-characters-tab /> }
+        @case ('notes') { <app-notes-tab /> }
+        }
+    </div>
+
+</aside>
