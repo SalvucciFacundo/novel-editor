@@ -45,7 +45,7 @@
             ✦ Ω
         </button>
         @if (showSymbols()) {
-        <app-symbols-popup (symbolSelected)="insertSymbol($event)" (close)="showSymbols.set(false)" />
+        <app-symbols-popup (symbolSelected)="insertSymbol($any($event))" (close)="showSymbols.set(false)" />
         }
     </div>
 </div>

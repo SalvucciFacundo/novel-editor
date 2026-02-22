@@ -4,7 +4,8 @@ import {
   Auth,
   GoogleAuthProvider,
   getAdditionalUserInfo,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   user,
 } from '@angular/fire/auth';
@@ -25,22 +26,37 @@ export class AuthService {
   /** true si hay sesión activa */
   readonly isLoggedIn = computed(() => !!this.currentUser());
 
+  constructor() {
+    // Procesa el resultado del redirect de Google al volver a la app.
+    // Se ejecuta en el contexto de inyección del constructor.
+    this.processRedirectResult();
+  }
+
+  private async processRedirectResult(): Promise<void> {
+    try {
+      const credential = await getRedirectResult(this.auth);
+      if (!credential) return;
+
+      const additionalInfo = getAdditionalUserInfo(credential);
+      if (additionalInfo?.isNewUser) {
+        await this.createUserProfile(credential.user);
+      } else {
+        await this.updateLastLogin(credential.user.uid);
+      }
+
+      // Navegar a /projects después del login via redirect
+      await this.router.navigate(['/projects']);
+    } catch (err) {
+      console.error('Error procesando redirect de Google:', err);
+    }
+  }
+
   /**
-   * Inicia sesión con Google.
-   * Si el usuario es nuevo, crea su perfil en Firestore automáticamente.
+   * Inicia el flujo de login con Google via redirect (evita problemas COOP con popups).
    */
   async loginWithGoogle(): Promise<void> {
     const provider = new GoogleAuthProvider();
-    const credential = await signInWithPopup(this.auth, provider);
-    const additionalInfo = getAdditionalUserInfo(credential);
-
-    if (additionalInfo?.isNewUser) {
-      await this.createUserProfile(credential.user);
-    } else {
-      await this.updateLastLogin(credential.user.uid);
-    }
-
-    await this.router.navigate(['/projects']);
+    await signInWithRedirect(this.auth, provider);
   }
 
   /** Cierra sesión y redirige al login */

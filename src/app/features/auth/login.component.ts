@@ -18,10 +18,10 @@ export class LoginComponent {
     this.error.set(null);
     try {
       await this.authService.loginWithGoogle();
+      // signInWithRedirect() redirige a Google — la página se va
     } catch (err) {
       this.error.set('No se pudo iniciar sesión. Intenta nuevamente.');
       console.error(err);
-    } finally {
       this.loading.set(false);
     }
   }

@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { tap } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { NovelService } from '../../core/services/novel.service';
 import { Novel } from '../../models/novel.model';
@@ -13,14 +14,12 @@ import { Novel } from '../../models/novel.model';
   templateUrl: './projects.component.html',
   styleUrl: './projects.component.scss',
 })
-export class ProjectsComponent implements OnInit {
+export class ProjectsComponent {
   private authService = inject(AuthService);
   private novelService = inject(NovelService);
   private router = inject(Router);
 
   readonly currentUser = this.authService.currentUser;
-
-  readonly novels = toSignal(this.novelService.getNovels(), { initialValue: [] });
   readonly loading = signal(true);
   readonly showModal = signal(false);
   readonly modalLoading = signal(false);
@@ -34,9 +33,18 @@ export class ProjectsComponent implements OnInit {
   newTitle = '';
   newDescription = '';
 
-  ngOnInit(): void {
-    // Dar un pequeño margen para que Firestore responda antes de ocultar el skeleton
-    setTimeout(() => this.loading.set(false), 800);
+  /**
+   * La primera vez que getNovels() emite (Firestore respondió con datos reales),
+   * se apaga el loading. Timeout de 10s como safety net.
+   */
+  readonly novels = toSignal(
+    this.novelService.getNovels().pipe(tap(() => this.loading.set(false))),
+    { initialValue: [] as Novel[] },
+  );
+
+  constructor() {
+    // Safety net: si Firestore no respondió en 10s, ocultar el skeleton igual
+    setTimeout(() => this.loading.set(false), 10_000);
   }
 
   openNovel(id: string): void {
