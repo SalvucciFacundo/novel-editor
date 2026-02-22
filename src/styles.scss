@@ -1,1 +1,115 @@
-/* You can add global styles to this file, and also import other style files */
+/* ============================================================
+   Novel Editor – Design System (CSS Custom Properties)
+   ============================================================ */
+
+:root {
+  /* Colores principales */
+  --color-primary: #a78bfa;
+  --color-primary-dark: #7c3aed;
+  --color-primary-glow: rgba(167, 139, 250, 0.3);
+
+  /* Fondos */
+  --color-bg: #0a0a0f;
+  --color-surface: #111118;
+  --color-surface-2: #1a1a24;
+  --color-surface-3: #24242f;
+
+  /* Bordes */
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-hover: rgba(255, 255, 255, 0.16);
+
+  /* Texto */
+  --color-text: #f1f0f5;
+  --color-text-muted: #9998a8;
+  --color-text-faint: #5a5970;
+
+  /* Estados */
+  --color-success: #4ade80;
+  --color-error: #f87171;
+  --color-warning: #fbbf24;
+  --color-info: #60a5fa;
+
+  /* Tipografía */
+  --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family-serif: 'Noto Serif', 'Georgia', serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --font-size-xs: 0.75rem; /*  12px */
+  --font-size-sm: 0.875rem; /*  14px */
+  --font-size-md: 1rem; /*  16px */
+  --font-size-lg: 1.125rem; /*  18px */
+  --font-size-xl: 1.25rem; /*  20px */
+  --font-size-2xl: 1.5rem; /*  24px */
+  --font-size-3xl: 1.875rem; /*  30px */
+
+  /* Espaciado */
+  --spacing-xs: 0.25rem; /*   4px */
+  --spacing-sm: 0.5rem; /*   8px */
+  --spacing-md: 1rem; /*  16px */
+  --spacing-lg: 1.5rem; /*  24px */
+  --spacing-xl: 2rem; /*  32px */
+  --spacing-2xl: 3rem; /*  48px */
+
+  /* Bordes redondeados */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Sombras */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+
+  /* Transiciones */
+  --transition-fast: 0.1s ease;
+  --transition-base: 0.2s ease;
+  --transition-slow: 0.3s ease;
+}
+
+/* ============================================================
+   Reset & Base
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-md);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+button {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
