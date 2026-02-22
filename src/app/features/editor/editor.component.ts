@@ -47,11 +47,12 @@ export class EditorComponent implements OnInit, OnDestroy {
     this.editorState.editor = null;
   }
 
-  private loadNovelTitle(): void {
-    this.novelService.getNovels().subscribe((novels) => {
-      const novel = novels.find((n) => n.id === this.novelId());
-      if (novel) this.novelTitle.set(novel.title);
-    });
+  private async loadNovelTitle(): Promise<void> {
+    const uid = this.auth.currentUser()?.uid;
+    if (!uid) return;
+    const novels = await this.novelService.getNovels(uid);
+    const novel = novels.find((n) => n.id === this.novelId());
+    if (novel) this.novelTitle.set(novel.title);
   }
 
   async save(): Promise<void> {
