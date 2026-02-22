@@ -11,7 +11,6 @@ import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { FontFamily } from '@tiptap/extension-font-family';
-import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
 import { EditorStateService } from '../../../core/services/editor-state.service';
 import { ToolbarComponent } from './toolbar/toolbar.component';
@@ -44,7 +43,6 @@ export class TextEditorComponent implements AfterViewInit, OnDestroy {
         StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
         TextStyle,
         FontFamily,
-        Underline,
         Placeholder.configure({ placeholder: 'Empezá a escribir tu historia...' }),
       ],
       content: this.state.activeChapter()?.content ?? '',
