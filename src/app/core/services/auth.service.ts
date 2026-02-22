@@ -1,14 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { Auth, user } from '@angular/fire/auth';
 import {
-  Auth,
   GoogleAuthProvider,
   getAdditionalUserInfo,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
   signOut,
-  user,
-} from '@angular/fire/auth';
+  browserPopupRedirectResolver,
+} from 'firebase/auth';
 import { Firestore, doc, setDoc, serverTimestamp } from '@angular/fire/firestore';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { computed } from '@angular/core';
@@ -26,37 +25,27 @@ export class AuthService {
   /** true si hay sesión activa */
   readonly isLoggedIn = computed(() => !!this.currentUser());
 
-  constructor() {
-    // Procesa el resultado del redirect de Google al volver a la app.
-    // Se ejecuta en el contexto de inyección del constructor.
-    this.processRedirectResult();
-  }
-
-  private async processRedirectResult(): Promise<void> {
-    try {
-      const credential = await getRedirectResult(this.auth);
-      if (!credential) return;
-
-      const additionalInfo = getAdditionalUserInfo(credential);
-      if (additionalInfo?.isNewUser) {
-        await this.createUserProfile(credential.user);
-      } else {
-        await this.updateLastLogin(credential.user.uid);
-      }
-
-      // Navegar a /projects después del login via redirect
-      await this.router.navigate(['/projects']);
-    } catch (err) {
-      console.error('Error procesando redirect de Google:', err);
-    }
-  }
-
   /**
-   * Inicia el flujo de login con Google via redirect (evita problemas COOP con popups).
+   * Inicia sesión con Google usando el resolver explícito para evitar
+   * problemas de COOP con window.close en desarrollo.
    */
   async loginWithGoogle(): Promise<void> {
     const provider = new GoogleAuthProvider();
-    await signInWithRedirect(this.auth, provider);
+    provider.addScope('email');
+    provider.addScope('profile');
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    // browserPopupRedirectResolver evita el error COOP de window.close
+    const credential = await signInWithPopup(this.auth, provider, browserPopupRedirectResolver);
+    const additionalInfo = getAdditionalUserInfo(credential);
+
+    if (additionalInfo?.isNewUser) {
+      await this.createUserProfile(credential.user);
+    } else {
+      await this.updateLastLogin(credential.user.uid);
+    }
+
+    await this.router.navigate(['/projects']);
   }
 
   /** Cierra sesión y redirige al login */
