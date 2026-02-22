@@ -2,30 +2,26 @@ import { Injectable, inject } from '@angular/core';
 import {
   Firestore,
   collection,
-  collectionData,
   doc,
   addDoc,
   updateDoc,
   deleteDoc,
+  getDocs,
   query,
   where,
-  orderBy,
   serverTimestamp,
 } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
 import { Character, CharacterCreate } from '../../models/character.model';
 
 @Injectable({ providedIn: 'root' })
 export class CharacterService {
   private firestore = inject(Firestore);
 
-  getCharacters(novelId: string): Observable<Character[]> {
-    const q = query(
-      collection(this.firestore, 'characters'),
-      where('novelId', '==', novelId),
-      orderBy('name', 'asc'),
-    );
-    return collectionData(q, { idField: 'id' }) as Observable<Character[]>;
+  async getCharacters(novelId: string): Promise<Character[]> {
+    const q = query(collection(this.firestore, 'characters'), where('novelId', '==', novelId));
+    const snapshot = await getDocs(q);
+    const characters = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Character);
+    return characters.sort((a, b) => a.name.localeCompare(b.name));
   }
 
   async create(data: CharacterCreate): Promise<string> {

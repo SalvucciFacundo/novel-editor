@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { CharacterService } from '../../../../core/services/character.service';
 import { EditorStateService } from '../../../../core/services/editor-state.service';
 import { Character } from '../../../../models/character.model';
@@ -16,16 +15,30 @@ export class CharactersTabComponent {
   private characterService = inject(CharacterService);
   readonly state = inject(EditorStateService);
 
-  readonly characters = toSignal(this.characterService.getCharacters(this.state.novelId() ?? ''), {
-    initialValue: [] as Character[],
-  });
-
+  readonly characters = signal<Character[]>([]);
   readonly creating = signal(false);
   readonly editingId = signal<string | null>(null);
   newName = '';
   newRole = '';
   editName = '';
   editRole = '';
+
+  constructor() {
+    effect(() => {
+      const novelId = this.state.novelId();
+      if (novelId) this.load(novelId);
+      else this.characters.set([]);
+    });
+  }
+
+  private async load(novelId: string): Promise<void> {
+    try {
+      const data = await this.characterService.getCharacters(novelId);
+      this.characters.set(data);
+    } catch (err) {
+      console.error('Error cargando personajes:', err);
+    }
+  }
 
   /** Inserta el nombre del personaje en el editor en la posición del cursor */
   insertName(name: string): void {
@@ -49,6 +62,7 @@ export class CharactersTabComponent {
       role: this.newRole.trim() || undefined,
     });
     this.creating.set(false);
+    await this.load(novelId);
   }
 
   cancelCreate(): void {
@@ -68,6 +82,8 @@ export class CharactersTabComponent {
       role: this.editRole.trim() || undefined,
     });
     this.editingId.set(null);
+    const novelId = this.state.novelId();
+    if (novelId) await this.load(novelId);
   }
 
   cancelEdit(): void {
@@ -77,5 +93,7 @@ export class CharactersTabComponent {
   async deleteCharacter(event: Event, id: string): Promise<void> {
     event.stopPropagation();
     await this.characterService.delete(id);
+    const novelId = this.state.novelId();
+    if (novelId) await this.load(novelId);
   }
 }

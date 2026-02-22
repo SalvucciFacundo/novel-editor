@@ -2,30 +2,26 @@ import { Injectable, inject } from '@angular/core';
 import {
   Firestore,
   collection,
-  collectionData,
   doc,
   addDoc,
   updateDoc,
   deleteDoc,
+  getDocs,
   query,
   where,
-  orderBy,
   serverTimestamp,
 } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
 import { Chapter, ChapterCreate } from '../../models/chapter.model';
 
 @Injectable({ providedIn: 'root' })
 export class ChapterService {
   private firestore = inject(Firestore);
 
-  getChapters(novelId: string): Observable<Chapter[]> {
-    const q = query(
-      collection(this.firestore, 'chapters'),
-      where('novelId', '==', novelId),
-      orderBy('order', 'asc'),
-    );
-    return collectionData(q, { idField: 'id' }) as Observable<Chapter[]>;
+  async getChapters(novelId: string): Promise<Chapter[]> {
+    const q = query(collection(this.firestore, 'chapters'), where('novelId', '==', novelId));
+    const snapshot = await getDocs(q);
+    const chapters = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Chapter);
+    return chapters.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   }
 
   async create(data: ChapterCreate): Promise<string> {

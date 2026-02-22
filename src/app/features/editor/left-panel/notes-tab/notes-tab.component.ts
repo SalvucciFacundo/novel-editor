@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SlicePipe } from '@angular/common';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { NoteService } from '../../../../core/services/note.service';
 import { EditorStateService } from '../../../../core/services/editor-state.service';
 import { Note } from '../../../../models/note.model';
@@ -17,10 +16,7 @@ export class NotesTabComponent {
   private noteService = inject(NoteService);
   readonly state = inject(EditorStateService);
 
-  readonly notes = toSignal(this.noteService.getNotes(this.state.novelId() ?? ''), {
-    initialValue: [] as Note[],
-  });
-
+  readonly notes = signal<Note[]>([]);
   readonly modalNote = signal<Note | null>(null);
   readonly editing = signal(false);
   readonly creating = signal(false);
@@ -32,6 +28,23 @@ export class NotesTabComponent {
   // Campos del formulario de edición (en modal)
   editTitle = '';
   editContent = '';
+
+  constructor() {
+    effect(() => {
+      const novelId = this.state.novelId();
+      if (novelId) this.load(novelId);
+      else this.notes.set([]);
+    });
+  }
+
+  private async load(novelId: string): Promise<void> {
+    try {
+      const data = await this.noteService.getNotes(novelId);
+      this.notes.set(data);
+    } catch (err) {
+      console.error('Error cargando notas:', err);
+    }
+  }
 
   openNote(note: Note): void {
     this.modalNote.set(note);
@@ -58,11 +71,16 @@ export class NotesTabComponent {
     });
     this.modalNote.set({ ...note, title: this.editTitle, content: this.editContent });
     this.editing.set(false);
+    const novelId = this.state.novelId();
+    if (novelId) await this.load(novelId);
+  }
   }
 
   async deleteNote(id: string): Promise<void> {
     await this.noteService.delete(id);
     this.closeModal();
+    const novelId = this.state.novelId();
+    if (novelId) await this.load(novelId);
   }
 
   startCreate(): void {
@@ -81,6 +99,7 @@ export class NotesTabComponent {
       content: this.newContent,
     });
     this.creating.set(false);
+    await this.load(novelId);
   }
 
   cancelCreate(): void {

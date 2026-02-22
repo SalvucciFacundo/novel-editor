@@ -2,30 +2,31 @@ import { Injectable, inject } from '@angular/core';
 import {
   Firestore,
   collection,
-  collectionData,
   doc,
   addDoc,
   updateDoc,
   deleteDoc,
+  getDocs,
   query,
   where,
-  orderBy,
   serverTimestamp,
+  Timestamp,
 } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
 import { Note, NoteCreate } from '../../models/note.model';
 
 @Injectable({ providedIn: 'root' })
 export class NoteService {
   private firestore = inject(Firestore);
 
-  getNotes(novelId: string): Observable<Note[]> {
-    const q = query(
-      collection(this.firestore, 'notes'),
-      where('novelId', '==', novelId),
-      orderBy('updatedAt', 'desc'),
-    );
-    return collectionData(q, { idField: 'id' }) as Observable<Note[]>;
+  async getNotes(novelId: string): Promise<Note[]> {
+    const q = query(collection(this.firestore, 'notes'), where('novelId', '==', novelId));
+    const snapshot = await getDocs(q);
+    const notes = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Note);
+    return notes.sort((a, b) => {
+      const aTime = (a.updatedAt as unknown as Timestamp)?.toMillis?.() ?? 0;
+      const bTime = (b.updatedAt as unknown as Timestamp)?.toMillis?.() ?? 0;
+      return bTime - aTime;
+    });
   }
 
   async create(data: NoteCreate): Promise<string> {

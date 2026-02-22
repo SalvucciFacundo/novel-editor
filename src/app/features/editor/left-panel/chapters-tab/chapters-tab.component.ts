@@ -1,7 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
 import { ChapterService } from '../../../../core/services/chapter.service';
 import { EditorStateService } from '../../../../core/services/editor-state.service';
 import { Chapter } from '../../../../models/chapter.model';
@@ -17,15 +15,28 @@ export class ChaptersTabComponent {
   private chapterService = inject(ChapterService);
   readonly state = inject(EditorStateService);
 
-  readonly chapters = toSignal(
-    this.chapterService.getChapters(this.state.novelId() ?? '').pipe(map((chapters) => chapters)),
-    { initialValue: [] as Chapter[] },
-  );
-
+  readonly chapters = signal<Chapter[]>([]);
   readonly creating = signal(false);
   readonly renamingId = signal<string | null>(null);
   newTitle = '';
   renameTitle = '';
+
+  constructor() {
+    effect(() => {
+      const novelId = this.state.novelId();
+      if (novelId) this.load(novelId);
+      else this.chapters.set([]);
+    });
+  }
+
+  private async load(novelId: string): Promise<void> {
+    try {
+      const data = await this.chapterService.getChapters(novelId);
+      this.chapters.set(data);
+    } catch (err) {
+      console.error('Error cargando capítulos:', err);
+    }
+  }
 
   loadChapter(chapter: Chapter): void {
     if (this.state.activeChapter()?.id === chapter.id) return;
@@ -47,7 +58,7 @@ export class ChaptersTabComponent {
     const novelId = this.state.novelId();
     if (!novelId) return;
 
-    const id = await this.chapterService.create({
+    await this.chapterService.create({
       novelId,
       title: this.newTitle.trim(),
       order: this.chapters().length,
@@ -55,6 +66,7 @@ export class ChaptersTabComponent {
     });
     this.creating.set(false);
     this.newTitle = '';
+    await this.load(novelId);
   }
 
   cancelCreate(): void {
@@ -70,12 +82,13 @@ export class ChaptersTabComponent {
   async confirmRename(id: string): Promise<void> {
     if (!this.renameTitle.trim()) return;
     await this.chapterService.rename(id, this.renameTitle.trim());
-    // Actualizar el capítulo activo si es el que se renombró
     const active = this.state.activeChapter();
     if (active?.id === id) {
       this.state.activeChapter.set({ ...active, title: this.renameTitle.trim() });
     }
     this.renamingId.set(null);
+    const novelId = this.state.novelId();
+    if (novelId) await this.load(novelId);
   }
 
   cancelRename(): void {
@@ -88,5 +101,7 @@ export class ChaptersTabComponent {
       this.state.activeChapter.set(null);
     }
     await this.chapterService.delete(id);
+    const novelId = this.state.novelId();
+    if (novelId) await this.load(novelId);
   }
 }
