@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 import {
-  Firestore,
   collection,
   doc,
   addDoc,
@@ -11,12 +10,13 @@ import {
   where,
   serverTimestamp,
   Timestamp,
-} from '@angular/fire/firestore';
+} from 'firebase/firestore';
+import { FIREBASE_FIRESTORE } from '../firebase.tokens';
 import { Novel, NovelCreate } from '../../models/novel.model';
 
 @Injectable({ providedIn: 'root' })
 export class NovelService {
-  private firestore = inject(Firestore);
+  private firestore = inject(FIREBASE_FIRESTORE);
 
   /**
    * Obtiene las novelas del usuario dado su UID.

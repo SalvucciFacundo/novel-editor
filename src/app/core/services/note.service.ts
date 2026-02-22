@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 import {
-  Firestore,
   collection,
   doc,
   addDoc,
@@ -11,12 +10,13 @@ import {
   where,
   serverTimestamp,
   Timestamp,
-} from '@angular/fire/firestore';
+} from 'firebase/firestore';
+import { FIREBASE_FIRESTORE } from '../firebase.tokens';
 import { Note, NoteCreate } from '../../models/note.model';
 
 @Injectable({ providedIn: 'root' })
 export class NoteService {
-  private firestore = inject(Firestore);
+  private firestore = inject(FIREBASE_FIRESTORE);
 
   async getNotes(novelId: string): Promise<Note[]> {
     const q = query(collection(this.firestore, 'notes'), where('novelId', '==', novelId));

@@ -1,27 +1,33 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { Auth } from '@angular/fire/auth';
-import { authState } from '@angular/fire/auth';
-import { map, take } from 'rxjs';
+import { Observable } from 'rxjs';
+import { onAuthStateChanged } from 'firebase/auth';
+import { FIREBASE_AUTH } from '../firebase.tokens';
 
 /** Protege rutas que requieren autenticación */
 export const authGuard: CanActivateFn = () => {
-  const auth = inject(Auth);
+  const auth = inject(FIREBASE_AUTH);
   const router = inject(Router);
 
-  return authState(auth).pipe(
-    take(1),
-    map((user) => (user ? true : router.createUrlTree(['/login']))),
-  );
+  return new Observable((observer) => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      unsub();
+      observer.next(user ? true : router.createUrlTree(['/login']));
+      observer.complete();
+    });
+  });
 };
 
 /** Redirige usuarios autenticados fuera del login */
 export const noAuthGuard: CanActivateFn = () => {
-  const auth = inject(Auth);
+  const auth = inject(FIREBASE_AUTH);
   const router = inject(Router);
 
-  return authState(auth).pipe(
-    take(1),
-    map((user) => (user ? router.createUrlTree(['/projects']) : true)),
-  );
+  return new Observable((observer) => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      unsub();
+      observer.next(user ? router.createUrlTree(['/projects']) : true);
+      observer.complete();
+    });
+  });
 };

@@ -74,7 +74,6 @@ export class NotesTabComponent {
     const novelId = this.state.novelId();
     if (novelId) await this.load(novelId);
   }
-  }
 
   async deleteNote(id: string): Promise<void> {
     await this.noteService.delete(id);

@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 import {
-  Firestore,
   collection,
   doc,
   addDoc,
@@ -10,12 +9,13 @@ import {
   query,
   where,
   serverTimestamp,
-} from '@angular/fire/firestore';
+} from 'firebase/firestore';
+import { FIREBASE_FIRESTORE } from '../firebase.tokens';
 import { Chapter, ChapterCreate } from '../../models/chapter.model';
 
 @Injectable({ providedIn: 'root' })
 export class ChapterService {
-  private firestore = inject(Firestore);
+  private firestore = inject(FIREBASE_FIRESTORE);
 
   async getChapters(novelId: string): Promise<Chapter[]> {
     const q = query(collection(this.firestore, 'chapters'), where('novelId', '==', novelId));

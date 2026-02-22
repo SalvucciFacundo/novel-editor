@@ -2,13 +2,16 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-import { getAuth, provideAuth } from '@angular/fire/auth';
-import { getFirestore, provideFirestore } from '@angular/fire/firestore';
-import { getStorage, provideStorage } from '@angular/fire/storage';
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
+import { FIREBASE_AUTH, FIREBASE_FIRESTORE, FIREBASE_STORAGE } from './core/firebase.tokens';
 
 import { routes } from './app.routes';
 import { environment } from '../environments/environment';
+
+const firebaseApp = initializeApp(environment.firebaseConfig);
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,9 +19,8 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withComponentInputBinding()),
     provideClientHydration(withEventReplay()),
     provideHttpClient(withFetch()),
-    provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
-    provideAuth(() => getAuth()),
-    provideFirestore(() => getFirestore()),
-    provideStorage(() => getStorage()),
+    { provide: FIREBASE_AUTH, useValue: getAuth(firebaseApp) },
+    { provide: FIREBASE_FIRESTORE, useValue: getFirestore(firebaseApp) },
+    { provide: FIREBASE_STORAGE, useValue: getStorage(firebaseApp) },
   ],
 };
