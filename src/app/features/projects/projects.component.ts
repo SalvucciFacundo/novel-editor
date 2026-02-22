@@ -1,8 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { tap } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { NovelService } from '../../core/services/novel.service';
 import { Novel } from '../../models/novel.model';
@@ -21,6 +19,7 @@ export class ProjectsComponent {
 
   readonly currentUser = this.authService.currentUser;
   readonly loading = signal(true);
+  readonly novels = signal<Novel[]>([]);
   readonly showModal = signal(false);
   readonly modalLoading = signal(false);
   readonly modalError = signal<string | null>(null);
@@ -33,18 +32,30 @@ export class ProjectsComponent {
   newTitle = '';
   newDescription = '';
 
-  /**
-   * La primera vez que getNovels() emite (Firestore respondió con datos reales),
-   * se apaga el loading. Timeout de 10s como safety net.
-   */
-  readonly novels = toSignal(
-    this.novelService.getNovels().pipe(tap(() => this.loading.set(false))),
-    { initialValue: [] as Novel[] },
-  );
-
   constructor() {
-    // Safety net: si Firestore no respondió en 10s, ocultar el skeleton igual
-    setTimeout(() => this.loading.set(false), 10_000);
+    // Cada vez que cambia el usuario autenticado, recargamos las novelas
+    effect(() => {
+      const user = this.currentUser();
+      if (user) {
+        this.loadNovels(user.uid);
+      } else {
+        this.novels.set([]);
+        this.loading.set(false);
+      }
+    });
+  }
+
+  private async loadNovels(uid: string): Promise<void> {
+    this.loading.set(true);
+    try {
+      const data = await this.novelService.getNovels(uid);
+      this.novels.set(data);
+    } catch (err) {
+      console.error('Error cargando novelas:', err);
+      this.novels.set([]);
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   openNovel(id: string): void {
@@ -79,6 +90,8 @@ export class ProjectsComponent {
         tags: [],
       });
 
+      // Recargar lista antes de navegar
+      await this.loadNovels(uid);
       this.closeModal();
       this.router.navigate(['/editor', id]);
     } catch {
@@ -105,8 +118,10 @@ export class ProjectsComponent {
     try {
       await this.novelService.delete(novel.id);
       this.cancelDelete();
+      // Recargar lista después de eliminar
+      const uid = this.currentUser()?.uid;
+      if (uid) await this.loadNovels(uid);
     } catch {
-      // En caso de error simplemente cerramos
       this.cancelDelete();
     } finally {
       this.modalLoading.set(false);
