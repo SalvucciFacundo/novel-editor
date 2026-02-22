@@ -23,14 +23,9 @@ export class NovelService {
    * Usa getDocs (una sola consulta) para máxima compatibilidad.
    */
   async getNovels(uid: string): Promise<Novel[]> {
-    const q = query(
-      collection(this.firestore, 'novels'),
-      where('ownerId', '==', uid),
-    );
+    const q = query(collection(this.firestore, 'novels'), where('ownerId', '==', uid));
     const snapshot = await getDocs(q);
-    const novels = snapshot.docs.map(
-      (d) => ({ id: d.id, ...d.data() }) as Novel,
-    );
+    const novels = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Novel);
     return novels.sort((a, b) => {
       const aTime = (a.updatedAt as unknown as Timestamp)?.toMillis?.() ?? 0;
       const bTime = (b.updatedAt as unknown as Timestamp)?.toMillis?.() ?? 0;
