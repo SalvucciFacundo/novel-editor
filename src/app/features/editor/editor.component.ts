@@ -33,6 +33,7 @@ export class EditorComponent implements OnInit, OnDestroy {
   readonly themeService = inject(ThemeService);
 
   readonly novelTitle = signal('');
+  readonly exportOpen = signal(false);
   readonly saving = this.editorState.saving;
   readonly hasUnsaved = this.editorState.hasUnsavedChanges;
   readonly activeChapter = this.editorState.activeChapter;
@@ -72,13 +73,34 @@ export class EditorComponent implements OnInit, OnDestroy {
   exportTxt(): void {
     const chapter = this.activeChapter();
     if (!chapter || !this.editorState.editor) return;
+    this.exportOpen.set(false);
     this.downloadFile(`${chapter.title}.txt`, this.editorState.editor.getText(), 'text/plain');
   }
 
-  exportHtml(): void {
+  exportPdf(): void {
     const chapter = this.activeChapter();
     if (!chapter || !this.editorState.editor) return;
-    this.downloadFile(`${chapter.title}.html`, this.editorState.editor.getHTML(), 'text/html');
+    this.exportOpen.set(false);
+    const html = this.editorState.editor.getHTML();
+    const win = window.open('', '_blank');
+    if (!win) return;
+    win.document.write(`<!DOCTYPE html><html><head>
+      <meta charset="utf-8">
+      <title>${chapter.title}</title>
+      <style>
+        body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.8;
+               max-width: 700px; margin: 40px auto; color: #111; padding: 0 20px; }
+        h1,h2,h3 { font-weight: 700; margin: 1.5em 0 0.5em; }
+        p { margin: 0 0 1em; } blockquote { border-left: 3px solid #999;
+            padding: 0.5em 1em; color: #555; font-style: italic; }
+        @media print { body { margin: 0; } }
+      </style></head><body>${html}</body></html>`);
+    win.document.close();
+    win.focus();
+    setTimeout(() => {
+      win.print();
+      win.close();
+    }, 300);
   }
 
   private downloadFile(filename: string, content: string, mime: string): void {
