@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { EditorStateService } from '../../../../core/services/editor-state.service';
 import { SymbolsPopupComponent } from '../symbols-popup/symbols-popup.component';
 
@@ -17,6 +24,10 @@ interface FontOption {
 export class ToolbarComponent {
   readonly state = inject(EditorStateService);
   readonly showSymbols = signal(false);
+  readonly popupTop = signal(0);
+  readonly popupLeft = signal(0);
+
+  private symbolsBtnEl = viewChild<ElementRef>('symbolsBtn');
 
   readonly fonts: FontOption[] = [
     { label: 'Serif', value: 'Noto Serif' },
@@ -78,6 +89,14 @@ export class ToolbarComponent {
   }
 
   toggleSymbols(): void {
+    if (!this.showSymbols()) {
+      const btn = this.symbolsBtnEl()?.nativeElement as HTMLElement | undefined;
+      if (btn) {
+        const rect = btn.getBoundingClientRect();
+        this.popupTop.set(rect.bottom + 6);
+        this.popupLeft.set(Math.min(rect.left, window.innerWidth - 292));
+      }
+    }
     this.showSymbols.update((v) => !v);
   }
 }

@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 const SYMBOLS: { category: string; items: string[] }[] = [
-  { category: 'Comillas', items: ['«', '»', '"', '"', "'", "'", '‹', '›'] },
+  { category: 'Comillas', items: ['«', '»', '\u201c', '\u201d', '\u2018', '\u2019', '‹', '›'] },
   { category: 'Corchetes', items: ['【', '】', '〔', '〕', '《', '》', '〈', '〉'] },
   { category: 'Corazones', items: ['♥', '♡', '❤', '💕', '💗', '💖', '💘', '💞'] },
   { category: 'Estrellas', items: ['★', '☆', '✦', '✧', '✨', '⭐', '🌟', '💫'] },
@@ -14,7 +14,11 @@ const SYMBOLS: { category: string; items: string[] }[] = [
   selector: 'app-symbols-popup',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="symbols-popup" role="dialog" aria-label="Símbolos especiales">
+    <div class="symbols-popup"
+      [style.top.px]="top()"
+      [style.left.px]="left()"
+      role="dialog"
+      aria-label="Símbolos especiales">
       @for (group of groups; track group.category) {
         <div class="symbols-popup__group">
           <span class="symbols-popup__label">{{ group.category }}</span>
@@ -22,12 +26,11 @@ const SYMBOLS: { category: string; items: string[] }[] = [
             @for (sym of group.items; track sym) {
               <button
                 class="symbols-popup__btn"
-                (click)="symbolSelected.emit(sym)"
+                type="button"
+                (click)="$event.stopPropagation(); symbolSelected.emit(sym)"
                 [title]="sym"
                 [attr.aria-label]="sym"
-              >
-                {{ sym }}
-              </button>
+              >{{ sym }}</button>
             }
           </div>
         </div>
@@ -37,6 +40,8 @@ const SYMBOLS: { category: string; items: string[] }[] = [
   styleUrl: './symbols-popup.component.scss',
 })
 export class SymbolsPopupComponent {
+  readonly top = input<number>(0);
+  readonly left = input<number>(0);
   readonly symbolSelected = output<string>();
   readonly close = output<void>();
   readonly groups = SYMBOLS;
