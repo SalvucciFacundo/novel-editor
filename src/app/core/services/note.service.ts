@@ -18,6 +18,12 @@ import { Note, NoteCreate } from '../../models/note.model';
 export class NoteService {
   private firestore = inject(FIREBASE_FIRESTORE);
 
+  private clean<T extends object>(obj: T): Partial<T> {
+    return Object.fromEntries(
+      Object.entries(obj).filter(([, v]) => v !== undefined),
+    ) as Partial<T>;
+  }
+
   async getNotes(novelId: string): Promise<Note[]> {
     const q = query(collection(this.firestore, 'notes'), where('novelId', '==', novelId));
     const snapshot = await getDocs(q);
@@ -31,7 +37,7 @@ export class NoteService {
 
   async create(data: NoteCreate): Promise<string> {
     const ref = await addDoc(collection(this.firestore, 'notes'), {
-      ...data,
+      ...this.clean(data),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
@@ -39,7 +45,7 @@ export class NoteService {
   }
 
   async update(id: string, data: Partial<Pick<Note, 'title' | 'content'>>): Promise<void> {
-    await updateDoc(doc(this.firestore, 'notes', id), { ...data, updatedAt: serverTimestamp() });
+    await updateDoc(doc(this.firestore, 'notes', id), { ...this.clean(data), updatedAt: serverTimestamp() });
   }
 
   async delete(id: string): Promise<void> {

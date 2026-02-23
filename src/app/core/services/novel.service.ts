@@ -18,6 +18,12 @@ import { Novel, NovelCreate } from '../../models/novel.model';
 export class NovelService {
   private firestore = inject(FIREBASE_FIRESTORE);
 
+  private clean<T extends object>(obj: T): Partial<T> {
+    return Object.fromEntries(
+      Object.entries(obj).filter(([, v]) => v !== undefined),
+    ) as Partial<T>;
+  }
+
   /**
    * Obtiene las novelas del usuario dado su UID.
    * Usa getDocs (una sola consulta) para máxima compatibilidad.
@@ -37,7 +43,7 @@ export class NovelService {
   async create(data: NovelCreate): Promise<string> {
     const ref = collection(this.firestore, 'novels');
     const docRef = await addDoc(ref, {
-      ...data,
+      ...this.clean(data),
       chapterCount: 0,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -51,7 +57,7 @@ export class NovelService {
     data: Partial<Pick<Novel, 'title' | 'description' | 'tags'>>,
   ): Promise<void> {
     const ref = doc(this.firestore, 'novels', id);
-    await updateDoc(ref, { ...data, updatedAt: serverTimestamp() });
+    await updateDoc(ref, { ...this.clean(data), updatedAt: serverTimestamp() });
   }
 
   /** Elimina una novela */
