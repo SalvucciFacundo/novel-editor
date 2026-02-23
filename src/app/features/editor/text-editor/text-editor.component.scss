@@ -7,8 +7,9 @@
   &__scroll {
     flex: 1;
     overflow-y: auto;
-    background: transparent;
+    background: var(--color-scroll-area);
     padding: var(--spacing-xl) var(--spacing-md);
+    transition: background var(--transition-slow);
 
     &::-webkit-scrollbar {
       width: 6px;
@@ -25,14 +26,17 @@
   &__page {
     max-width: 720px;
     margin: 0 auto;
-    background: #0c1524;
-    border: 1px solid rgba(59, 130, 246, 0.12);
+    background: var(--color-editor-page);
+    border: 1px solid var(--color-editor-page-border);
     border-radius: var(--radius-xl);
     padding: var(--spacing-2xl) var(--spacing-2xl);
     min-height: 80vh;
     box-shadow:
       0 8px 40px rgba(0, 0, 0, 0.55),
       0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+    transition:
+      background var(--transition-slow),
+      box-shadow var(--transition-slow);
 
     @media (max-width: 800px) {
       padding: var(--spacing-xl) var(--spacing-lg);

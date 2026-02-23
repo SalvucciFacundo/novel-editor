@@ -2,11 +2,12 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: rgba(6, 10, 20, 0.94);
+  background: var(--color-panel-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   overflow: hidden;
-  border-right: 1px solid rgba(59, 130, 246, 0.15);
+  border-right: 1px solid var(--color-border);
+  transition: background var(--transition-slow);
 
   &__tabs {
     display: flex;
@@ -14,7 +15,7 @@
     padding: var(--spacing-sm) var(--spacing-sm);
     border-bottom: 1px solid var(--color-border);
     flex-shrink: 0;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--color-panel-tabs-bg);
 
     button {
       flex: 1;

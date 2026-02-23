@@ -20,6 +20,14 @@
   --color-surface-solid: #0d1520;
   --color-surface-solid-2: #131e2e;
   --color-surface-solid-3: #1a2840;
+  /* ── Semánticas de componentes ── */
+  --color-panel-bg: rgba(6, 10, 20, 0.94);
+  --color-panel-tabs-bg: rgba(0, 0, 0, 0.2);
+  --color-topbar-bg: rgba(6, 10, 20, 0.95);
+  --color-editor-shell-bg: rgba(8, 12, 22, 0.35);
+  --color-editor-page: #0c1524;
+  --color-editor-page-border: rgba(59, 130, 246, 0.12);
+  --color-scroll-area: transparent;
 
   /* ── Gradiente malla — opacidad alta para que sea VISIBLE ── */
   --gradient-mesh:
@@ -107,10 +115,18 @@
   --color-surface-solid: #ffffff;
   --color-surface-solid-2: #f1f5ff;
   --color-surface-solid-3: #e4ecff;
+  /* ── Semánticas de componentes — light ── */
+  --color-panel-bg: #eef2fb;
+  --color-panel-tabs-bg: rgba(0, 0, 0, 0.04);
+  --color-topbar-bg: rgba(255, 255, 255, 0.97);
+  --color-editor-shell-bg: #e8edf8;
+  --color-editor-page: #ffffff;
+  --color-editor-page-border: rgba(37, 99, 235, 0.12);
+  --color-scroll-area: #dde4f5;
 
   --gradient-mesh:
-    radial-gradient(ellipse 70% 55% at 15% 0%, rgba(59, 130, 246, 0.18) 0%, transparent 55%),
-    radial-gradient(ellipse 55% 45% at 88% 100%, rgba(139, 92, 246, 0.1) 0%, transparent 55%);
+    radial-gradient(ellipse 70% 55% at 15% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 45% at 88% 100%, rgba(139, 92, 246, 0.06) 0%, transparent 55%);
 
   --glass-border: rgba(37, 99, 235, 0.15);
   --glass-border-hover: rgba(37, 99, 235, 0.4);

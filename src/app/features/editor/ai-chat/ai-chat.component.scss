@@ -2,11 +2,12 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: rgba(6, 8, 18, 0.94);
+  background: var(--color-panel-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-left: 1px solid rgba(139, 92, 246, 0.18);
+  border-left: 1px solid var(--color-border);
   overflow: hidden;
+  transition: background var(--transition-slow);
 
   &__header {
     display: flex;
