@@ -5,8 +5,6 @@
   padding: var(--spacing-xs) var(--spacing-md);
   background: var(--color-topbar-bg);
   border-bottom: 1px solid var(--color-border);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   flex-shrink: 0;
   flex-wrap: wrap;
   transition: background var(--transition-slow);
