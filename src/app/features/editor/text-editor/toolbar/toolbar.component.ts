@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  HostListener,
   inject,
   signal,
   viewChild,
@@ -88,7 +89,15 @@ export class ToolbarComponent {
     this.showSymbols.set(false);
   }
 
-  toggleSymbols(): void {
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    if (this.showSymbols()) {
+      this.showSymbols.set(false);
+    }
+  }
+
+  toggleSymbols(event: MouseEvent): void {
+    event.stopPropagation();
     if (!this.showSymbols()) {
       const btn = this.symbolsBtnEl()?.nativeElement as HTMLElement | undefined;
       if (btn) {

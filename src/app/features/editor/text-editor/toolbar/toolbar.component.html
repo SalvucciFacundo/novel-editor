@@ -40,12 +40,11 @@
 
     <!-- Símbolos especiales -->
     <div class="toolbar__symbols-wrapper">
-        <button #symbolsBtn class="toolbar__btn" [class.active]="showSymbols()" (click)="toggleSymbols()"
+        <button #symbolsBtn class="toolbar__btn" [class.active]="showSymbols()" (click)="toggleSymbols($event)"
             title="Insertar símbolo" aria-label="Símbolos">
             ✦ Ω
         </button>
         @if (showSymbols()) {
-        <div class="symbols-backdrop" (click)="showSymbols.set(false)"></div>
         <app-symbols-popup [top]="popupTop()" [left]="popupLeft()" (symbolSelected)="insertSymbol($any($event))"
             (close)="showSymbols.set(false)" />
         }

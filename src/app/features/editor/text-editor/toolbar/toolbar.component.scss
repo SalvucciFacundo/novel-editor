@@ -82,11 +82,3 @@
     position: relative;
   }
 }
-
-.symbols-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 8999;
-  background: transparent;
-  cursor: default;
-}

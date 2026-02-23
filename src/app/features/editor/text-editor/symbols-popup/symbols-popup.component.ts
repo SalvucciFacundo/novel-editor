@@ -13,12 +13,17 @@ const SYMBOLS: { category: string; items: string[] }[] = [
 @Component({
   selector: 'app-symbols-popup',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(click)': '$event.stopPropagation()',
+  },
   template: `
-    <div class="symbols-popup"
+    <div
+      class="symbols-popup"
       [style.top.px]="top()"
       [style.left.px]="left()"
       role="dialog"
-      aria-label="Símbolos especiales">
+      aria-label="Símbolos especiales"
+    >
       @for (group of groups; track group.category) {
         <div class="symbols-popup__group">
           <span class="symbols-popup__label">{{ group.category }}</span>
@@ -30,7 +35,9 @@ const SYMBOLS: { category: string; items: string[] }[] = [
                 (click)="$event.stopPropagation(); symbolSelected.emit(sym)"
                 [title]="sym"
                 [attr.aria-label]="sym"
-              >{{ sym }}</button>
+              >
+                {{ sym }}
+              </button>
             }
           </div>
         </div>
