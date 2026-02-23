@@ -21,10 +21,11 @@
   --color-surface-solid-2: #131e2e;
   --color-surface-solid-3: #1a2840;
 
-  /* ── Gradiente malla (background hero) ── */
+  /* ── Gradiente malla — opacidad alta para que sea VISIBLE ── */
   --gradient-mesh:
-    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(59, 130, 246, 0.14) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 85% 110%, rgba(139, 92, 246, 0.09) 0%, transparent 60%);
+    radial-gradient(ellipse 70% 55% at 15% 0%, rgba(59, 130, 246, 0.45) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 45% at 88% 100%, rgba(139, 92, 246, 0.28) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 30% at 50% 55%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
 
   /* ── Glass ── */
   --glass-blur: blur(16px);

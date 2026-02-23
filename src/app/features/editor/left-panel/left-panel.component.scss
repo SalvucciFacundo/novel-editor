@@ -2,11 +2,11 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: rgba(8, 14, 22, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(6, 10, 20, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   overflow: hidden;
-  border-right: 1px solid var(--glass-border);
+  border-right: 1px solid rgba(59, 130, 246, 0.15);
 
   &__tabs {
     display: flex;

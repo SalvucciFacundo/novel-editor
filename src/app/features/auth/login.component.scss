@@ -4,21 +4,26 @@
   justify-content: center;
   min-height: 100vh;
   padding: var(--spacing-md);
-  /* El gradiente de malla viene del body */
+  /* Gradiente de fondo fuerte y visible */
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 25%, rgba(59, 130, 246, 0.3) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 80% 85%, rgba(139, 92, 246, 0.22) 0%, transparent 55%),
+    #080c14;
 }
 
 .login-card {
   width: 100%;
   max-width: 420px;
-  background: rgba(8, 14, 26, 0.82);
-  backdrop-filter: var(--glass-blur-lg);
-  -webkit-backdrop-filter: var(--glass-blur-lg);
-  border: 1px solid var(--glass-border);
+  background: rgba(10, 16, 30, 0.78);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(59, 130, 246, 0.25);
   border-radius: var(--radius-2xl);
   overflow: hidden;
   box-shadow:
-    var(--shadow-lg),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+    0 32px 80px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+    0 0 80px rgba(59, 130, 246, 0.1);
 
   &__header {
     display: flex;
@@ -26,7 +31,12 @@
     align-items: center;
     padding: var(--spacing-2xl) var(--spacing-xl) var(--spacing-xl);
     text-align: center;
-    background: linear-gradient(160deg, rgba(59, 130, 246, 0.08) 0%, transparent 60%);
+    background: linear-gradient(
+      160deg,
+      rgba(59, 130, 246, 0.22) 0%,
+      rgba(139, 92, 246, 0.1) 60%,
+      transparent 100%
+    );
     border-bottom: 1px solid var(--color-border);
     position: relative;
 
@@ -37,9 +47,9 @@
       top: -40px;
       left: 50%;
       transform: translateX(-50%);
-      width: 200px;
-      height: 200px;
-      background: radial-gradient(circle, rgba(59, 130, 246, 0.18) 0%, transparent 70%);
+      width: 240px;
+      height: 240px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.35) 0%, transparent 65%);
       pointer-events: none;
     }
   }
@@ -104,8 +114,8 @@
   gap: var(--spacing-sm);
   width: 100%;
   padding: var(--spacing-md) var(--spacing-lg);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-lg);
   color: var(--color-text);
   font-size: var(--font-size-md);
@@ -118,9 +128,9 @@
     transform var(--transition-fast);
 
   &:hover:not(:disabled) {
-    background: rgba(59, 130, 246, 0.1);
-    border-color: rgba(59, 130, 246, 0.4);
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.12);
+    background: rgba(59, 130, 246, 0.14);
+    border-color: rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 28px rgba(59, 130, 246, 0.18);
     transform: translateY(-1px);
   }
 

@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  /* El gradient-mesh viene del body vía background-attachment: fixed */
+  background: transparent; /* el gradiente del body se ve directamente */
 }
 
 /* ── HEADER ───────────────────────────────────── */
@@ -114,24 +114,26 @@
   justify-content: space-between;
   min-height: 160px;
   padding: var(--spacing-lg);
-  background: rgba(13, 21, 32, 0.7);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid var(--color-border);
+  /* Fondo sólido con tinte azul para que se distinga del bg */
+  background: linear-gradient(145deg, #0f1826 0%, #0b1220 100%);
+  border: 1px solid rgba(59, 130, 246, 0.18);
   border-radius: var(--radius-xl);
   cursor: pointer;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.04) inset;
   transition:
     border-color var(--transition-base),
     transform var(--transition-base),
     box-shadow var(--transition-base);
 
   &:hover {
-    border-color: rgba(59, 130, 246, 0.45);
-    transform: translateY(-3px);
+    border-color: rgba(59, 130, 246, 0.55);
+    transform: translateY(-4px);
     box-shadow:
-      0 12px 32px rgba(0, 0, 0, 0.5),
-      0 0 0 1px rgba(59, 130, 246, 0.2),
-      0 0 24px rgba(59, 130, 246, 0.08);
+      0 16px 48px rgba(0, 0, 0, 0.55),
+      0 0 0 1px rgba(59, 130, 246, 0.25),
+      0 0 32px rgba(59, 130, 246, 0.12);
   }
 
   &:focus-visible {
@@ -245,15 +247,14 @@
 .modal {
   width: 100%;
   max-width: 480px;
-  background: rgba(10, 16, 28, 0.92);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
+  background: #0c1526;
+  border: 1px solid rgba(59, 130, 246, 0.22);
   border-radius: var(--radius-xl);
   overflow: hidden;
   box-shadow:
-    var(--shadow-lg),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+    0 24px 80px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+    0 0 60px rgba(59, 130, 246, 0.06);
   animation: slide-up 0.2s ease;
 
   &--sm {
@@ -317,8 +318,8 @@
 }
 
 .form-input {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--color-border);
+  background: #0a1322;
+  border: 1px solid rgba(59, 130, 246, 0.2);
   border-radius: var(--radius-md);
   padding: var(--spacing-sm) var(--spacing-md);
   color: var(--color-text);
