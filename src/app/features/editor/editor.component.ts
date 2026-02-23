@@ -11,6 +11,7 @@ import { NovelService } from '../../core/services/novel.service';
 import { ChapterService } from '../../core/services/chapter.service';
 import { EditorStateService } from '../../core/services/editor-state.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { LeftPanelComponent } from './left-panel/left-panel.component';
 import { TextEditorComponent } from './text-editor/text-editor.component';
 import { AiChatComponent } from './ai-chat/ai-chat.component';
@@ -29,6 +30,7 @@ export class EditorComponent implements OnInit, OnDestroy {
   private chapterService = inject(ChapterService);
   readonly editorState = inject(EditorStateService);
   private auth = inject(AuthService);
+  readonly themeService = inject(ThemeService);
 
   readonly novelTitle = signal('');
   readonly saving = this.editorState.saving;

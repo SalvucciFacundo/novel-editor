@@ -3,11 +3,45 @@
     <!-- ── HEADER ─────────────────────────────────── -->
     <header class="projects-header">
         <div class="projects-header__brand">
-            <span class="projects-header__logo">✦</span>
+            <!-- Logo SVG -->
+            <div class="projects-header__logo-wrap">
+                <svg class="projects-header__logo-icon" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <path d="M6 26 L16 6 L26 26" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path d="M10 20 H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.6" />
+                    <circle cx="16" cy="6" r="2.5" fill="currentColor" opacity="0.9" />
+                </svg>
+            </div>
             <span class="projects-header__title">Novel Editor</span>
         </div>
 
-        <div class="projects-header__user">
+        <div class="projects-header__actions">
+            <!-- Theme toggle -->
+            <button class="theme-toggle" (click)="themeService.toggle()"
+                [title]="themeService.isDark() ? 'Modo claro' : 'Modo oscuro'" aria-label="Cambiar tema">
+                @if (themeService.isDark()) {
+                <!-- Sun icon -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="4" />
+                    <line x1="12" y1="2" x2="12" y2="4" />
+                    <line x1="12" y1="20" x2="12" y2="22" />
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                    <line x1="2" y1="12" x2="4" y2="12" />
+                    <line x1="20" y1="12" x2="22" y2="12" />
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+                } @else {
+                <!-- Moon icon -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+                }
+            </button>
+
             @if (currentUser(); as u) {
             @if (u.photoURL) {
             <img class="projects-header__avatar" [src]="u.photoURL" [alt]="u.displayName ?? ''" />
@@ -18,16 +52,29 @@
             }
             <span class="projects-header__name">{{ u.displayName }}</span>
             }
-            <button class="btn-ghost btn-sm" (click)="logout()">Salir</button>
+            <button class="btn-logout" (click)="logout()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                Salir
+            </button>
         </div>
     </header>
 
     <!-- ── CONTENIDO ──────────────────────────────── -->
     <main class="projects-content">
-        <div class="projects-content__top">
+        <div class="projects-content__top animate-fade-up">
             <h2 class="projects-content__heading">Mis Novelas</h2>
             <button class="btn-primary" (click)="openModal()">
-                <span>+</span> Nueva novela
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                    aria-hidden="true">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Nueva novela
             </button>
         </div>
 
@@ -43,20 +90,35 @@
         <!-- Lista de novelas -->
         @else if (novels().length > 0) {
         <ul class="projects-grid" role="list">
-            @for (novel of novels(); track novel.id) {
-            <li class="novel-card" (click)="openNovel(novel.id)" tabindex="0" (keydown.enter)="openNovel(novel.id)"
-                role="button" [attr.aria-label]="'Abrir ' + novel.title">
+            @for (novel of novels(); track novel.id; let i = $index) {
+            <li class="novel-card animate-fade-up" [style.animation-delay]="(i * 60) + 'ms'"
+                (click)="openNovel(novel.id)" tabindex="0" (keydown.enter)="openNovel(novel.id)" role="button"
+                [attr.aria-label]="'Abrir ' + novel.title">
+                <div class="novel-card__accent"></div>
                 <div class="novel-card__body">
                     <h3 class="novel-card__title">{{ novel.title }}</h3>
                     <p class="novel-card__desc">{{ novel.description || 'Sin descripción' }}</p>
                 </div>
                 <footer class="novel-card__footer">
                     <span class="novel-card__chapters">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                            stroke-linecap="round" aria-hidden="true"
+                            style="width:13px;height:13px;display:inline-block;vertical-align:middle;margin-right:3px;">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                        </svg>
                         {{ novel.chapterCount }} cap{{ novel.chapterCount === 1 ? 'ítulo' : 'ítulos' }}
                     </span>
                     <button class="btn-icon btn-danger" (click)="confirmDelete($event, novel)"
                         aria-label="Eliminar novela">
-                        🗑
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                            <path d="M10 11v6" />
+                            <path d="M14 11v6" />
+                            <path d="M9 6V4h6v2" />
+                        </svg>
                     </button>
                 </footer>
             </li>
@@ -66,11 +128,27 @@
 
         <!-- Empty state -->
         @else {
-        <div class="projects-empty">
-            <div class="projects-empty__icon">📖</div>
+        <div class="projects-empty animate-fade-up">
+            <div class="projects-empty__icon">
+                <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 56 L20 56 L20 8 L52 8 L52 56 L12 56" stroke-width="2" />
+                    <line x1="28" y1="20" x2="44" y2="20" />
+                    <line x1="28" y1="28" x2="44" y2="28" />
+                    <line x1="28" y1="36" x2="38" y2="36" />
+                    <path d="M12 56 Q12 48 20 48" stroke-width="2" />
+                </svg>
+            </div>
             <h3 class="projects-empty__title">Todavía no tenés ninguna novela</h3>
             <p class="projects-empty__text">Creá tu primera novela y empezá a escribir.</p>
-            <button class="btn-primary" (click)="openModal()">+ Crear novela</button>
+            <button class="btn-primary" (click)="openModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                    aria-hidden="true">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Crear novela
+            </button>
         </div>
         }
     </main>
@@ -80,10 +158,16 @@
 <!-- ── MODAL NUEVA NOVELA ─────────────────────── -->
 @if (showModal()) {
 <div class="modal-backdrop" (click)="closeModal()" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-    <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal animate-scale-in" (click)="$event.stopPropagation()">
         <header class="modal__header">
             <h3 id="modal-title" class="modal__title">Nueva novela</h3>
-            <button class="btn-icon" (click)="closeModal()" aria-label="Cerrar">✕</button>
+            <button class="btn-icon" (click)="closeModal()" aria-label="Cerrar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    aria-hidden="true">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
         </header>
 
         <form class="modal__form" (ngSubmit)="createNovel()" #form="ngForm">
@@ -118,7 +202,7 @@
 <!-- ── MODAL CONFIRMAR ELIMINACIÓN ────────────── -->
 @if (novelToDelete()) {
 <div class="modal-backdrop" (click)="cancelDelete()" role="dialog" aria-modal="true" aria-labelledby="delete-title">
-    <div class="modal modal--sm" (click)="$event.stopPropagation()">
+    <div class="modal modal--sm animate-scale-in" (click)="$event.stopPropagation()">
         <header class="modal__header">
             <h3 id="delete-title" class="modal__title">Eliminar novela</h3>
         </header>

@@ -90,7 +90,7 @@
                 <input #fileInput type="file" accept="image/*" class="sr-only" (change)="onFileSelected($event)" />
             </label>
 
-            <textarea class="ai-chat__textarea" [(ngModel)]="userInput" placeholder="Escribí tu consulta..." rows="2"
+            <textarea class="ai-chat__textarea" [(ngModel)]="userInput" placeholder="Escribí tu consulta..." rows="4"
                 (keydown.enter)="onEnterKey($event)">
       </textarea>
 

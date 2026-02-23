@@ -19,9 +19,7 @@ export class NovelService {
   private firestore = inject(FIREBASE_FIRESTORE);
 
   private clean<T extends object>(obj: T): Partial<T> {
-    return Object.fromEntries(
-      Object.entries(obj).filter(([, v]) => v !== undefined),
-    ) as Partial<T>;
+    return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined)) as Partial<T>;
   }
 
   /**

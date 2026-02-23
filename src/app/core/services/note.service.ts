@@ -19,9 +19,7 @@ export class NoteService {
   private firestore = inject(FIREBASE_FIRESTORE);
 
   private clean<T extends object>(obj: T): Partial<T> {
-    return Object.fromEntries(
-      Object.entries(obj).filter(([, v]) => v !== undefined),
-    ) as Partial<T>;
+    return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined)) as Partial<T>;
   }
 
   async getNotes(novelId: string): Promise<Note[]> {
@@ -45,7 +43,10 @@ export class NoteService {
   }
 
   async update(id: string, data: Partial<Pick<Note, 'title' | 'content'>>): Promise<void> {
-    await updateDoc(doc(this.firestore, 'notes', id), { ...this.clean(data), updatedAt: serverTimestamp() });
+    await updateDoc(doc(this.firestore, 'notes', id), {
+      ...this.clean(data),
+      updatedAt: serverTimestamp(),
+    });
   }
 
   async delete(id: string): Promise<void> {

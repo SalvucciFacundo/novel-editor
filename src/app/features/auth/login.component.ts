@@ -12,6 +12,7 @@ export class LoginComponent {
 
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+  readonly particles = Array.from({ length: 10 });
 
   async onGoogleLogin(): Promise<void> {
     this.loading.set(true);

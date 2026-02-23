@@ -19,9 +19,7 @@ export class CharacterService {
 
   /** Elimina las claves con valor undefined para que Firestore no las rechace */
   private clean<T extends object>(obj: T): Partial<T> {
-    return Object.fromEntries(
-      Object.entries(obj).filter(([, v]) => v !== undefined),
-    ) as Partial<T>;
+    return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined)) as Partial<T>;
   }
 
   async getCharacters(novelId: string): Promise<Character[]> {

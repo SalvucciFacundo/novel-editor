@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { NovelService } from '../../core/services/novel.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { Novel } from '../../models/novel.model';
 
 @Component({
@@ -16,6 +17,7 @@ export class ProjectsComponent {
   private authService = inject(AuthService);
   private novelService = inject(NovelService);
   private router = inject(Router);
+  readonly themeService = inject(ThemeService);
 
   readonly currentUser = this.authService.currentUser;
   readonly loading = signal(true);
