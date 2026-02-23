@@ -47,9 +47,10 @@
       color var(--transition-fast);
 
     &:hover {
-      background: var(--color-primary);
-      color: #0a0a0f;
-      border-color: var(--color-primary);
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
     }
   }
 
@@ -270,8 +271,8 @@
 
 .btn-confirm {
   padding: 0.2rem 0.5rem;
-  background: var(--color-primary);
-  color: #0a0a0f;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: #fff;
   border: none;
   border-radius: var(--radius-sm);
   font-size: var(--font-size-xs);

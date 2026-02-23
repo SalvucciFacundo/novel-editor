@@ -1,35 +1,53 @@
 /* ============================================================
    Novel Editor – Design System (CSS Custom Properties)
+   Arc/Figma Dark + Electric Blue
    ============================================================ */
 
 :root {
-  /* Colores principales */
-  --color-primary: #a78bfa;
-  --color-primary-dark: #7c3aed;
-  --color-primary-glow: rgba(167, 139, 250, 0.3);
+  /* ── Acento principal: Azul eléctrico ── */
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-primary-dark: #1d4ed8;
+  --color-primary-glow: rgba(59, 130, 246, 0.3);
+  --color-primary-subtle: rgba(59, 130, 246, 0.1);
 
-  /* Fondos */
-  --color-bg: #0a0a0f;
-  --color-surface: #111118;
-  --color-surface-2: #1a1a24;
-  --color-surface-3: #24242f;
+  /* ── Fondos ── */
+  --color-bg: #080c14;
+  --color-surface: rgba(255, 255, 255, 0.04);
+  --color-surface-2: rgba(255, 255, 255, 0.07);
+  --color-surface-3: rgba(255, 255, 255, 0.12);
+  /* Superficies sólidas (sin glass) para scrollbars, selects, etc. */
+  --color-surface-solid: #0d1520;
+  --color-surface-solid-2: #131e2e;
+  --color-surface-solid-3: #1a2840;
 
-  /* Bordes */
+  /* ── Gradiente malla (background hero) ── */
+  --gradient-mesh:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(59, 130, 246, 0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 110%, rgba(139, 92, 246, 0.09) 0%, transparent 60%);
+
+  /* ── Glass ── */
+  --glass-blur: blur(16px);
+  --glass-blur-lg: blur(24px);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border-hover: rgba(59, 130, 246, 0.45);
+
+  /* ── Bordes ── */
   --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-hover: rgba(255, 255, 255, 0.16);
+  --color-border-hover: rgba(255, 255, 255, 0.18);
 
-  /* Texto */
-  --color-text: #f1f0f5;
-  --color-text-muted: #9998a8;
-  --color-text-faint: #5a5970;
+  /* ── Texto ── */
+  --color-text: #e8eeff;
+  --color-text-muted: #8b9bb4;
+  --color-text-faint: #4a5568;
 
-  /* Estados */
-  --color-success: #4ade80;
+  /* ── Estados ── */
+  --color-success: #34d399;
   --color-error: #f87171;
   --color-warning: #fbbf24;
   --color-info: #60a5fa;
 
-  /* Tipografía */
+  /* ── Tipografía ── */
   --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-family-serif: 'Noto Serif', 'Georgia', serif;
   --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
@@ -42,7 +60,7 @@
   --font-size-2xl: 1.5rem; /*  24px */
   --font-size-3xl: 1.875rem; /*  30px */
 
-  /* Espaciado */
+  /* ── Espaciado ── */
   --spacing-xs: 0.25rem; /*   4px */
   --spacing-sm: 0.5rem; /*   8px */
   --spacing-md: 1rem; /*  16px */
@@ -50,7 +68,7 @@
   --spacing-xl: 2rem; /*  32px */
   --spacing-2xl: 3rem; /*  48px */
 
-  /* Bordes redondeados */
+  /* ── Bordes redondeados ── */
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
@@ -58,15 +76,17 @@
   --radius-2xl: 1.5rem;
   --radius-full: 9999px;
 
-  /* Sombras */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+  /* ── Sombras ── */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 24px rgba(59, 130, 246, 0.2);
+  --shadow-glow-lg: 0 0 48px rgba(59, 130, 246, 0.25);
 
-  /* Transiciones */
-  --transition-fast: 0.1s ease;
-  --transition-base: 0.2s ease;
-  --transition-slow: 0.3s ease;
+  /* ── Transiciones ── */
+  --transition-fast: 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ============================================================
@@ -91,6 +111,8 @@ body {
   font-size: var(--font-size-md);
   color: var(--color-text);
   background: var(--color-bg);
+  background-image: var(--gradient-mesh);
+  background-attachment: fixed;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

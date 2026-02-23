@@ -7,7 +7,7 @@
   &__scroll {
     flex: 1;
     overflow-y: auto;
-    background: var(--color-bg);
+    background: transparent;
     padding: var(--spacing-xl) var(--spacing-md);
 
     &::-webkit-scrollbar {
@@ -25,8 +25,10 @@
   &__page {
     max-width: 720px;
     margin: 0 auto;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
+    background: rgba(13, 21, 34, 0.72);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.07);
     border-radius: var(--radius-xl);
     padding: var(--spacing-2xl) var(--spacing-2xl);
     min-height: 80vh;
@@ -113,6 +115,6 @@
 
   // Selección
   ::selection {
-    background: rgba(167, 139, 250, 0.25);
+    background: rgba(59, 130, 246, 0.28);
   }
 }

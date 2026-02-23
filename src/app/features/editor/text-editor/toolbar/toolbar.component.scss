@@ -3,8 +3,10 @@
   align-items: center;
   gap: 2px;
   padding: var(--spacing-xs) var(--spacing-md);
-  background: var(--color-surface);
+  background: rgba(8, 14, 22, 0.9);
   border-bottom: 1px solid var(--color-border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   flex-shrink: 0;
   flex-wrap: wrap;
 
@@ -32,8 +34,8 @@
     }
 
     &.active {
-      background: rgba(167, 139, 250, 0.15);
-      border-color: rgba(167, 139, 250, 0.3);
+      background: rgba(59, 130, 246, 0.14);
+      border-color: rgba(59, 130, 246, 0.3);
       color: var(--color-primary);
     }
 
@@ -56,7 +58,7 @@
   &__font-select {
     height: 2rem;
     padding: 0 var(--spacing-sm);
-    background: var(--color-surface-2);
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
     color: var(--color-text-muted);
@@ -68,7 +70,7 @@
       border-color: var(--color-primary);
     }
     option {
-      background: var(--color-surface-2);
+      background: var(--color-surface-solid-2);
     }
   }
 
