@@ -3,12 +3,13 @@
   align-items: center;
   gap: 2px;
   padding: var(--spacing-xs) var(--spacing-md);
-  background: rgba(8, 14, 24, 0.88);
-  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+  background: var(--color-topbar-bg);
+  border-bottom: 1px solid var(--color-border);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   flex-shrink: 0;
   flex-wrap: wrap;
+  transition: background var(--transition-slow);
 
   &__btn {
     min-width: 2rem;
@@ -58,12 +59,15 @@
   &__font-select {
     height: 2rem;
     padding: 0 var(--spacing-sm);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--color-surface-solid-2);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
     color: var(--color-text-muted);
     font-size: var(--font-size-xs);
     cursor: pointer;
+    transition:
+      background var(--transition-slow),
+      color var(--transition-slow);
 
     &:focus {
       outline: none;

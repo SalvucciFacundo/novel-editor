@@ -36,6 +36,8 @@
   transition: background var(--transition-slow);
   flex-shrink: 0;
   gap: var(--spacing-md);
+  position: relative;
+  z-index: 20;
 
   &__left {
     display: flex;
@@ -113,6 +115,7 @@
 
 .export-menu {
   position: relative;
+  z-index: 100;
 
   &:hover .export-menu__dropdown {
     display: flex;
