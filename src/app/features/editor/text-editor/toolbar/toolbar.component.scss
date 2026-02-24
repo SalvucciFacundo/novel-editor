@@ -9,6 +9,17 @@
   flex-wrap: wrap;
   transition: background var(--transition-slow);
 
+  @media (max-width: 768px) {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
   &__btn {
     min-width: 2rem;
     height: 2rem;

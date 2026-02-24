@@ -1,13 +1,26 @@
-<div class="editor-shell">
+<div class="editor-shell" [class.left-open]="leftOpen()" [class.right-open]="rightOpen()">
+
+    <!-- ── MOBILE OVERLAY ────────────────────────── -->
+    <div class="drawer-overlay" (click)="closeAll()"></div>
 
     <!-- ── LEFT PANEL ────────────────────────────── -->
-    <app-left-panel />
+    <app-left-panel [class.drawer-open]="leftOpen()" (close)="closeLeft()" />
 
     <!-- ── CENTER ────────────────────────────────── -->
     <div class="editor-center">
 
         <!-- Top bar -->
         <header class="editor-topbar">
+            <!-- Mobile drawer toggle buttons -->
+            <button class="mobile-drawer-btn" (click)="leftOpen.set(!leftOpen())" aria-label="Abrir panel lateral">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" style="width:18px;height:18px">
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+            </button>
+
             <div class="editor-topbar__left">
                 <span class="editor-topbar__logo">✦</span>
                 <span class="editor-topbar__title">{{ novelTitle() }}</span>
@@ -103,6 +116,13 @@
                     }
                 </button>
 
+                <button class="mobile-drawer-btn" (click)="rightOpen.set(!rightOpen())" aria-label="Abrir chat IA">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" style="width:18px;height:18px">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                </button>
+
                 <button class="btn-icon-sm" (click)="logout()" title="Cerrar sesión" aria-label="Cerrar sesión">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round">
@@ -129,6 +149,6 @@
     </div>
 
     <!-- ── RIGHT PANEL — AI CHAT ─────────────────── -->
-    <app-ai-chat />
+    <app-ai-chat [class.drawer-open]="rightOpen()" (close)="closeRight()" />
 
 </div>

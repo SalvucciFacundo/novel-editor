@@ -38,6 +38,21 @@ export class EditorComponent implements OnInit, OnDestroy {
   readonly hasUnsaved = this.editorState.hasUnsavedChanges;
   readonly activeChapter = this.editorState.activeChapter;
 
+  /** Estado de los drawers en mobile */
+  readonly leftOpen = signal(false);
+  readonly rightOpen = signal(false);
+
+  closeLeft(): void {
+    this.leftOpen.set(false);
+  }
+  closeRight(): void {
+    this.rightOpen.set(false);
+  }
+  closeAll(): void {
+    this.leftOpen.set(false);
+    this.rightOpen.set(false);
+  }
+
   ngOnInit(): void {
     this.editorState.novelId.set(this.novelId());
     this.loadNovelTitle();

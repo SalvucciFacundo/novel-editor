@@ -11,6 +11,8 @@
         </div>
 
         <button class="icon-btn-sm" (click)="showConfig.set(!showConfig())" title="Configurar IA">⚙</button>
+        <button class="ai-chat__close-btn" (click)="close.emit()" title="Cerrar chat"
+            aria-label="Cerrar chat">✕</button>
     </header>
 
     <!-- ── CONFIG PANEL ────────────────────────────── -->

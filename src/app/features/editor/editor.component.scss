@@ -9,6 +9,10 @@
   @media (max-width: 1024px) {
     grid-template-columns: 220px 1fr 280px;
   }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ── CENTER ────────────────────────────────────── */
@@ -272,5 +276,50 @@
   }
   &__text {
     font-size: var(--font-size-md);
+  }
+}
+
+/* ── MOBILE DRAWER OVERLAY ─────────────────────── */
+.drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 299;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+
+  @media (max-width: 768px) {
+    .editor-shell.left-open &,
+    .editor-shell.right-open & {
+      display: block;
+    }
+  }
+}
+
+/* ── MOBILE TOGGLE BUTTONS ─────────────────────── */
+.mobile-drawer-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+
+  &:hover {
+    background: var(--color-surface-2);
+    color: var(--color-text);
+  }
+
+  @media (max-width: 768px) {
+    display: flex;
   }
 }

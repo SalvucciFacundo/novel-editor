@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   inject,
+  output,
   signal,
   ViewChild,
 } from '@angular/core';
@@ -56,6 +57,8 @@ const PROVIDERS: AiProvider[] = [
 export class AiChatComponent {
   @ViewChild('messagesEl') messagesEl!: ElementRef<HTMLDivElement>;
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
+  readonly close = output<void>();
 
   private http = inject(HttpClient);
   private editorState = inject(EditorStateService);

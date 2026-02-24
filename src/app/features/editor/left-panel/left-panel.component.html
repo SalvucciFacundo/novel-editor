@@ -8,6 +8,8 @@
             [class.active]="activeTab() === 'characters'" (click)="setTab('characters')" title="Personajes">👤</button>
         <button role="tab" [attr.aria-selected]="activeTab() === 'notes'" [class.active]="activeTab() === 'notes'"
             (click)="setTab('notes')" title="Notas">📝</button>
+        <button class="left-panel__close-btn" (click)="close.emit()" title="Cerrar panel"
+            aria-label="Cerrar panel">✕</button>
     </nav>
 
     <!-- Tab content -->
