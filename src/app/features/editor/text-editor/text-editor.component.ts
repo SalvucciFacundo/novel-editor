@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  effect,
   ElementRef,
   inject,
   OnDestroy,
@@ -13,6 +14,7 @@ import { TextStyle } from '@tiptap/extension-text-style';
 import { FontFamily } from '@tiptap/extension-font-family';
 import Placeholder from '@tiptap/extension-placeholder';
 import { EditorStateService } from '../../../core/services/editor-state.service';
+import { SpellcheckService } from '../../../core/services/spellcheck.service';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
 @Component({
@@ -35,6 +37,24 @@ export class TextEditorComponent implements AfterViewInit, OnDestroy {
   @ViewChild('editorEl') editorEl!: ElementRef<HTMLDivElement>;
 
   private state = inject(EditorStateService);
+  private spellcheck = inject(SpellcheckService);
+
+  constructor() {
+    effect(() => {
+      const lang = this.spellcheck.language();
+      const dom = this.state.editor?.view?.dom as HTMLElement | undefined;
+      if (dom) {
+        dom.setAttribute('lang', lang);
+      }
+    });
+  }
+
+  private applyLang(): void {
+    const dom = this.state.editor?.view?.dom as HTMLElement | undefined;
+    if (dom) {
+      dom.setAttribute('lang', this.spellcheck.language());
+    }
+  }
 
   ngAfterViewInit(): void {
     const editor = new Editor({
@@ -53,11 +73,13 @@ export class TextEditorComponent implements AfterViewInit, OnDestroy {
         attributes: {
           class: 'prose-editor',
           spellcheck: 'true',
+          lang: this.spellcheck.language(),
         },
       },
     });
 
     this.state.editor = editor;
+    this.applyLang();
   }
 
   ngOnDestroy(): void {

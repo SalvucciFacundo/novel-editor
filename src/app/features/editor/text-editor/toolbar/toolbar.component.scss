@@ -79,4 +79,31 @@
   &__symbols-wrapper {
     position: relative;
   }
+
+  &__spacer {
+    flex: 1;
+  }
+
+  &__lang-select {
+    height: 2rem;
+    padding: 0 var(--spacing-sm);
+    background: var(--color-surface-solid-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-faint);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    transition:
+      background var(--transition-slow),
+      color var(--transition-slow);
+    max-width: 7.5rem;
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+    option {
+      background: var(--color-surface-solid-2);
+    }
+  }
 }

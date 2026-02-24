@@ -50,4 +50,14 @@
             (close)="showSymbols.set(false)" />
         }
     </div>
+
+    <!-- Idioma del corrector -->
+    <div class="toolbar__spacer"></div>
+    <select class="toolbar__lang-select" [value]="spellcheck.language()"
+        (change)="spellcheck.setLanguage($any($event.target).value)" title="Idioma del corrector ortográfico"
+        aria-label="Idioma del corrector">
+        @for (lang of spellcheck.languages; track lang.code) {
+        <option [value]="lang.code">{{ lang.label }}</option>
+        }
+    </select>
 </div>

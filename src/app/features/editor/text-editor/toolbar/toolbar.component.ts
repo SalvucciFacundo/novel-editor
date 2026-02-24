@@ -8,6 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { EditorStateService } from '../../../../core/services/editor-state.service';
+import { SpellcheckService } from '../../../../core/services/spellcheck.service';
 import { SymbolsPopupComponent } from '../symbols-popup/symbols-popup.component';
 
 interface FontOption {
@@ -24,6 +25,7 @@ interface FontOption {
 })
 export class ToolbarComponent {
   readonly state = inject(EditorStateService);
+  readonly spellcheck = inject(SpellcheckService);
   readonly showSymbols = signal(false);
   readonly popupTop = signal(0);
   readonly popupLeft = signal(0);
