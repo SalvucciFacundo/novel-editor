@@ -55,6 +55,26 @@
     &--underline u {
       text-decoration: underline;
     }
+    &--check {
+      gap: 4px;
+      padding: 0 var(--spacing-sm);
+      font-size: var(--font-size-xs);
+      color: var(--color-text-faint);
+      white-space: nowrap;
+
+      &:hover {
+        color: #4ade80;
+      }
+      &.active {
+        background: rgba(74, 222, 128, 0.12);
+        border-color: rgba(74, 222, 128, 0.3);
+        color: #4ade80;
+      }
+      &:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+    }
   }
 
   &__sep {

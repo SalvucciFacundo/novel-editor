@@ -8,6 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { EditorStateService } from '../../../../core/services/editor-state.service';
+import { LanguageToolService } from '../../../../core/services/language-tool.service';
 import { SpellcheckService } from '../../../../core/services/spellcheck.service';
 import { SymbolsPopupComponent } from '../symbols-popup/symbols-popup.component';
 
@@ -26,6 +27,7 @@ interface FontOption {
 export class ToolbarComponent {
   readonly state = inject(EditorStateService);
   readonly spellcheck = inject(SpellcheckService);
+  readonly lt = inject(LanguageToolService);
   readonly showSymbols = signal(false);
   readonly popupTop = signal(0);
   readonly popupLeft = signal(0);
@@ -43,6 +45,14 @@ export class ToolbarComponent {
 
   get editor() {
     return this.state.editor;
+  }
+
+  /** Obtiene el texto plano del editor y lanza la revisión */
+  checkSpelling(): void {
+    const editor = this.state.editor;
+    if (!editor) return;
+    const text = editor.getText({ blockSeparator: '\n' });
+    this.lt.check(text, this.spellcheck.language());
   }
 
   isBold() {

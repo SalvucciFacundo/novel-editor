@@ -1,0 +1,99 @@
+<aside class="spell-panel">
+
+    <!-- ── HEADER ─────────────────────────────────── -->
+    <header class="spell-panel__header">
+        <span class="spell-panel__title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+                <path d="m9 12 2 2 4-4" />
+            </svg>
+            Revisión
+        </span>
+
+        @if (!lt.loading() && lt.matches().length > 0) {
+        <span class="spell-panel__count">{{ lt.matches().length }}</span>
+        }
+
+        <button class="spell-panel__close" (click)="lt.closePanel()" aria-label="Cerrar panel de revisión">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+        </button>
+    </header>
+
+    <!-- ── BODY ───────────────────────────────────── -->
+    <div class="spell-panel__body">
+
+        @if (lt.loading()) {
+        <!-- Loading -->
+        <div class="spell-panel__state">
+            <div class="spell-spinner"></div>
+            <p>Analizando texto…</p>
+        </div>
+
+        } @else if (lt.errorMsg()) {
+        <!-- Error de red -->
+        <div class="spell-panel__state spell-panel__state--error">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <p>{{ lt.errorMsg() }}</p>
+        </div>
+
+        } @else if (lt.matches().length === 0) {
+        <!-- Sin errores -->
+        <div class="spell-panel__state spell-panel__state--ok">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                aria-hidden="true">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+            <p>¡Sin errores encontrados!</p>
+        </div>
+
+        } @else {
+        <!-- Lista de errores -->
+        @for (match of lt.matches(); track match.offset) {
+        <article class="spell-error" [class]="categoryClass(match)">
+
+            <div class="spell-error__meta">
+                <span class="spell-error__tag">{{ categoryLabel(match) }}</span>
+            </div>
+
+            <p class="spell-error__msg">{{ match.message }}</p>
+
+            <p class="spell-error__context">
+                {{ match.context.text.slice(0, match.context.offset)
+                }}<mark>{{ match.context.text.slice(match.context.offset,
+                    match.context.offset + match.context.length)
+                    }}</mark>{{ match.context.text.slice(match.context.offset + match.context.length) }}
+            </p>
+
+            @if (match.replacements.length > 0) {
+            <div class="spell-error__suggestions">
+                @for (rep of match.replacements.slice(0, 4); track rep.value) {
+                <button class="suggestion-btn" (click)="apply(match, rep.value)"
+                    [title]="'Reemplazar con: ' + rep.value">
+                    {{ rep.value }}
+                </button>
+                }
+            </div>
+            }
+
+            <button class="spell-error__ignore" (click)="ignore(match)" title="Ignorar esta sugerencia">
+                Ignorar
+            </button>
+
+        </article>
+        }
+        }
+
+    </div>
+
+</aside>

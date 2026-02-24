@@ -14,20 +14,27 @@ import { TextStyle } from '@tiptap/extension-text-style';
 import { FontFamily } from '@tiptap/extension-font-family';
 import Placeholder from '@tiptap/extension-placeholder';
 import { EditorStateService } from '../../../core/services/editor-state.service';
+import { LanguageToolService } from '../../../core/services/language-tool.service';
 import { SpellcheckService } from '../../../core/services/spellcheck.service';
+import { SpellCheckPanelComponent } from './spell-check-panel/spell-check-panel.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 
 @Component({
   selector: 'app-text-editor',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ToolbarComponent],
+  imports: [ToolbarComponent, SpellCheckPanelComponent],
   template: `
     <div class="text-editor">
       <app-toolbar />
-      <div class="text-editor__scroll">
-        <div class="text-editor__page">
-          <div #editorEl class="text-editor__content"></div>
+      <div class="text-editor__main">
+        <div class="text-editor__scroll">
+          <div class="text-editor__page">
+            <div #editorEl class="text-editor__content"></div>
+          </div>
         </div>
+        @defer (when lt.panelOpen()) {
+          <app-spell-check-panel />
+        }
       </div>
     </div>
   `,
@@ -38,6 +45,7 @@ export class TextEditorComponent implements AfterViewInit, OnDestroy {
 
   private state = inject(EditorStateService);
   private spellcheck = inject(SpellcheckService);
+  readonly lt = inject(LanguageToolService);
 
   constructor() {
     effect(() => {

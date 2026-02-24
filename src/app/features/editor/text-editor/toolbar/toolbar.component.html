@@ -51,6 +51,18 @@
         }
     </div>
 
+    <!-- Separador + botón revisar -->
+    <div class="toolbar__sep"></div>
+    <button class="toolbar__btn toolbar__btn--check" (click)="checkSpelling()" [class.active]="lt.panelOpen()"
+        [disabled]="!editor" title="Revisar ortografía y gramática" aria-label="Revisar texto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true" style="width:13px;height:13px">
+            <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+            <path d="m9 12 2 2 4-4" />
+        </svg>
+        Revisar
+    </button>
+
     <!-- Idioma del corrector -->
     <div class="toolbar__spacer"></div>
     <select class="toolbar__lang-select" [value]="spellcheck.language()"
