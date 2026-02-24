@@ -1,4 +1,7 @@
 {
+  "firestore": {
+    "rules": "firestore.rules"
+  },
   "hosting": {
     "public": "dist/novel-editor/browser",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],

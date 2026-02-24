@@ -1,0 +1,131 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -------------------------------------------------------
+    // Funciones auxiliares
+    // -------------------------------------------------------
+
+    // ¿El request viene de un usuario autenticado?
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    // ¿El usuario autenticado es el propietario del recurso?
+    function isOwner(uid) {
+      return isAuth() && request.auth.uid == uid;
+    }
+
+    // Valida que los campos del request no incluyan claves no permitidas
+    function hasOnly(allowed) {
+      return request.resource.data.keys().hasOnly(allowed);
+    }
+
+    // El documento de novela existe y el usuario es su dueño
+    function isNovelOwner(novelId) {
+      return isAuth() &&
+        exists(/databases/$(database)/documents/novels/$(novelId)) &&
+        get(/databases/$(database)/documents/novels/$(novelId)).data.ownerId == request.auth.uid;
+    }
+
+    // -------------------------------------------------------
+    // Perfiles de usuario  →  users/{uid}
+    // -------------------------------------------------------
+    match /users/{uid} {
+      // Solo el propio usuario puede leer su perfil
+      allow read: if isOwner(uid);
+
+      // Crear perfil: solo para sí mismo, con los campos requeridos
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasAll(['uid', 'displayName', 'email', 'createdAt', 'lastLoginAt'])
+        && request.resource.data.uid == uid;
+
+      // Actualizar: solo campos permitidos (no se puede cambiar uid ni createdAt)
+      allow update: if isOwner(uid)
+        && hasOnly(['displayName', 'email', 'photoURL', 'lastLoginAt']);
+
+      // No se pueden eliminar perfiles desde el cliente
+      allow delete: if false;
+    }
+
+    // -------------------------------------------------------
+    // Novelas  →  novels/{novelId}
+    // -------------------------------------------------------
+    match /novels/{novelId} {
+      // Solo el dueño puede leer sus novelas
+      allow read: if isAuth() && resource.data.ownerId == request.auth.uid;
+
+      // Crear: el ownerId debe coincidir con el uid del solicitante
+      allow create: if isAuth()
+        && request.resource.data.keys().hasAll(['title', 'description', 'ownerId', 'createdAt', 'updatedAt', 'chapterCount', 'tags'])
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 200
+        && request.resource.data.chapterCount == 0;
+
+      // Actualizar: solo el dueño, no puede cambiar ownerId ni createdAt
+      allow update: if isAuth()
+        && resource.data.ownerId == request.auth.uid
+        && request.resource.data.ownerId == resource.data.ownerId
+        && hasOnly(['title', 'description', 'coverUrl', 'updatedAt', 'chapterCount', 'tags']);
+
+      // Eliminar: solo el dueño
+      allow delete: if isAuth() && resource.data.ownerId == request.auth.uid;
+
+      // -------------------------------------------------------
+      // Capítulos  →  novels/{novelId}/chapters/{chapterId}
+      // -------------------------------------------------------
+      match /chapters/{chapterId} {
+        allow read:   if isNovelOwner(novelId);
+        allow create: if isNovelOwner(novelId)
+          && request.resource.data.keys().hasAll(['novelId', 'title', 'content', 'order', 'wordCount', 'createdAt', 'updatedAt'])
+          && request.resource.data.novelId == novelId
+          && request.resource.data.title.size() > 0
+          && request.resource.data.title.size() <= 200;
+        allow update: if isNovelOwner(novelId)
+          && request.resource.data.novelId == resource.data.novelId
+          && hasOnly(['title', 'content', 'order', 'wordCount', 'updatedAt']);
+        allow delete: if isNovelOwner(novelId);
+      }
+
+      // -------------------------------------------------------
+      // Personajes  →  novels/{novelId}/characters/{characterId}
+      // -------------------------------------------------------
+      match /characters/{characterId} {
+        allow read:   if isNovelOwner(novelId);
+        allow create: if isNovelOwner(novelId)
+          && request.resource.data.keys().hasAll(['novelId', 'name', 'createdAt'])
+          && request.resource.data.novelId == novelId
+          && request.resource.data.name is string
+          && request.resource.data.name.size() > 0
+          && request.resource.data.name.size() <= 100;
+        allow update: if isNovelOwner(novelId)
+          && request.resource.data.novelId == resource.data.novelId
+          && hasOnly(['name', 'role', 'description', 'traits']);
+        allow delete: if isNovelOwner(novelId);
+      }
+
+      // -------------------------------------------------------
+      // Notas  →  novels/{novelId}/notes/{noteId}
+      // -------------------------------------------------------
+      match /notes/{noteId} {
+        allow read:   if isNovelOwner(novelId);
+        allow create: if isNovelOwner(novelId)
+          && request.resource.data.keys().hasAll(['novelId', 'title', 'content', 'createdAt', 'updatedAt'])
+          && request.resource.data.novelId == novelId
+          && request.resource.data.title.size() <= 200;
+        allow update: if isNovelOwner(novelId)
+          && request.resource.data.novelId == resource.data.novelId
+          && hasOnly(['title', 'content', 'updatedAt']);
+        allow delete: if isNovelOwner(novelId);
+      }
+    }
+
+    // Denegar todo lo demás por defecto
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
