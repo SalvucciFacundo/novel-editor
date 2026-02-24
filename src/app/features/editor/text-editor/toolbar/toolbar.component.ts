@@ -29,6 +29,7 @@ export class ToolbarComponent {
   readonly popupLeft = signal(0);
 
   private symbolsBtnEl = viewChild<ElementRef>('symbolsBtn');
+  private savedSelection: { from: number; to: number } | null = null;
 
   readonly fonts: FontOption[] = [
     { label: 'Serif', value: 'Noto Serif' },
@@ -80,8 +81,22 @@ export class ToolbarComponent {
     this.editor?.chain().focus().toggleBlockquote().run();
   }
 
+  saveSelection(): void {
+    const state = this.editor?.state;
+    if (state) {
+      this.savedSelection = { from: state.selection.from, to: state.selection.to };
+    }
+  }
+
   setFont(value: string): void {
-    this.editor?.chain().focus().setFontFamily(value).run();
+    if (!this.editor) return;
+    const chain = this.editor.chain().focus();
+    if (this.savedSelection && this.savedSelection.from !== this.savedSelection.to) {
+      chain.setTextSelection(this.savedSelection).setFontFamily(value).run();
+    } else {
+      chain.setFontFamily(value).run();
+    }
+    this.savedSelection = null;
   }
 
   insertSymbol(symbol: string): void {

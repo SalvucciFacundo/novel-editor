@@ -1,6 +1,7 @@
 <div class="toolbar">
     <!-- Font selector -->
-    <select class="toolbar__font-select" (change)="setFont($any($event.target).value)" aria-label="Fuente">
+    <select class="toolbar__font-select" (mousedown)="saveSelection()" (change)="setFont($any($event.target).value)"
+        aria-label="Fuente">
         @for (font of fonts; track font.value) {
         <option [value]="font.value">{{ font.label }}</option>
         }
