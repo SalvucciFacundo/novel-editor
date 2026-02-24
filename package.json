@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:novel-editor": "node dist/novel-editor/server/server.mjs"
+    "serve:ssr:novel-editor": "node dist/novel-editor/server/server.mjs",
+    "deploy": "ng build --configuration=production && firebase deploy --only hosting"
   },
   "prettier": {
     "printWidth": 100,
