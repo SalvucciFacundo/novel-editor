@@ -1,10 +1,14 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { DemoBannerComponent } from './shared/components/demo-banner/demo-banner.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  template: `<router-outlet />`,
+  imports: [RouterOutlet, DemoBannerComponent],
+  template: `
+    <router-outlet />
+    <app-demo-banner />
+  `,
   styles: [
     `
       :host {

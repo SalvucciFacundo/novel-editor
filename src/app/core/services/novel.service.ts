@@ -13,10 +13,14 @@ import {
 } from 'firebase/firestore';
 import { FIREBASE_FIRESTORE } from '../firebase.tokens';
 import { Novel, NovelCreate } from '../../models/novel.model';
+import { AuthService } from './auth.service';
+import { GuestStoreService } from './guest-store.service';
 
 @Injectable({ providedIn: 'root' })
 export class NovelService {
   private firestore = inject(FIREBASE_FIRESTORE);
+  private authService = inject(AuthService);
+  private guestStore = inject(GuestStoreService);
 
   private clean<T extends object>(obj: T): Partial<T> {
     return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined)) as Partial<T>;
@@ -27,6 +31,7 @@ export class NovelService {
    * Usa getDocs (una sola consulta) para máxima compatibilidad.
    */
   async getNovels(uid: string): Promise<Novel[]> {
+    if (this.authService.isGuest()) return this.guestStore.getNovels();
     const q = query(collection(this.firestore, 'novels'), where('ownerId', '==', uid));
     const snapshot = await getDocs(q);
     const novels = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Novel);
@@ -39,6 +44,7 @@ export class NovelService {
 
   /** Crea una nueva novela y retorna su ID */
   async create(data: NovelCreate): Promise<string> {
+    if (this.authService.isGuest()) return this.guestStore.createNovel(data);
     const ref = collection(this.firestore, 'novels');
     const docRef = await addDoc(ref, {
       ...this.clean(data),
@@ -54,12 +60,20 @@ export class NovelService {
     id: string,
     data: Partial<Pick<Novel, 'title' | 'description' | 'tags'>>,
   ): Promise<void> {
+    if (this.authService.isGuest()) {
+      this.guestStore.updateNovel(id, data);
+      return;
+    }
     const ref = doc(this.firestore, 'novels', id);
     await updateDoc(ref, { ...this.clean(data), updatedAt: serverTimestamp() });
   }
 
   /** Elimina una novela */
   async delete(id: string): Promise<void> {
+    if (this.authService.isGuest()) {
+      this.guestStore.deleteNovel(id);
+      return;
+    }
     await deleteDoc(doc(this.firestore, 'novels', id));
   }
 }

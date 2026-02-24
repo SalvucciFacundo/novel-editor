@@ -4,7 +4,11 @@ import { provideHttpClient, withFetch } from '@angular/common/http';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { FIREBASE_AUTH, FIREBASE_FIRESTORE, FIREBASE_STORAGE } from './core/firebase.tokens';
 
@@ -14,6 +18,13 @@ import { provideServiceWorker } from '@angular/service-worker';
 
 const firebaseApp = initializeApp(environment.firebaseConfig);
 
+/** Firestore con caché persistente en IndexedDB — funciona offline */
+const firestore = initializeFirestore(firebaseApp, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+  }),
+});
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
@@ -21,10 +32,11 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     provideHttpClient(withFetch()),
     { provide: FIREBASE_AUTH, useValue: getAuth(firebaseApp) },
-    { provide: FIREBASE_FIRESTORE, useValue: getFirestore(firebaseApp) },
-    { provide: FIREBASE_STORAGE, useValue: getStorage(firebaseApp) }, provideServiceWorker('ngsw-worker.js', {
-            enabled: !isDevMode(),
-            registrationStrategy: 'registerWhenStable:30000'
-          }),
+    { provide: FIREBASE_FIRESTORE, useValue: firestore },
+    { provide: FIREBASE_STORAGE, useValue: getStorage(firebaseApp) },
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ],
 };

@@ -58,7 +58,7 @@
     flex: 1;
     overflow-y: auto;
     list-style: none;
-    padding: var(--spacing-xs) 0;
+    padding: var(--spacing-xs) 0 calc(var(--spacing-xs) + var(--demo-banner-h, 0px));
 
     &::-webkit-scrollbar {
       width: 4px;

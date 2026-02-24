@@ -35,7 +35,7 @@
             </div>
             }
 
-            <button class="btn-google" (click)="onGoogleLogin()" [disabled]="loading()"
+            <button class="btn-google" (click)="onGoogleLogin()" [disabled]="loading() || guestLoading()"
                 aria-label="Iniciar sesión con Google">
                 @if (loading()) {
                 <span class="btn-google__spinner" aria-hidden="true"></span>
@@ -54,6 +54,26 @@
                 <span>Continuar con Google</span>
                 }
             </button>
+
+            <div class="login-divider" aria-hidden="true">
+                <span>o</span>
+            </div>
+
+            <button class="btn-guest" (click)="onGuestLogin()" [disabled]="loading() || guestLoading()" type="button"
+                aria-label="Explorar en modo demo sin registrarse">
+                @if (guestLoading()) {
+                <span class="btn-guest__spinner" aria-hidden="true"></span>
+                <span>Cargando demo...</span>
+                } @else {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                </svg>
+                <span>Explorar como invitado</span>
+                }
+            </button>
+            <p class="login-guest-note">Sin registro · Datos de demo · Sin guardar cambios</p>
         </div>
 
         <footer class="login-card__footer">
