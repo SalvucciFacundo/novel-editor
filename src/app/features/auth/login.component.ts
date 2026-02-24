@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
+import { PwaInstallService } from '../../core/services/pwa-install.service';
 
 @Component({
   selector: 'app-login',
@@ -13,6 +14,7 @@ export class LoginComponent {
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly particles = Array.from({ length: 10 });
+  readonly pwa = inject(PwaInstallService);
 
   async onGoogleLogin(): Promise<void> {
     this.loading.set(true);

@@ -213,3 +213,35 @@
     transform: rotate(360deg);
   }
 }
+
+.btn-install {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  width: 100%;
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: transparent;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-faint);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    background: rgba(59, 130, 246, 0.06);
+  }
+}

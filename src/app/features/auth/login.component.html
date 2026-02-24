@@ -58,6 +58,16 @@
 
         <footer class="login-card__footer">
             <p>Al ingresar aceptás los términos de uso</p>
+            @if (pwa.canInstall()) {
+            <button class="btn-install" (click)="pwa.promptInstall()" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 16l-4-4h3V4h2v8h3l-4 4z" />
+                    <path d="M20 18H4v2h16v-2z" />
+                </svg>
+                Instalar aplicación
+            </button>
+            }
         </footer>
     </div>
 </main>
