@@ -41,9 +41,9 @@ service cloud.firestore {
         && request.resource.data.keys().hasAll(['uid', 'displayName', 'email', 'createdAt', 'lastLoginAt'])
         && request.resource.data.uid == uid;
 
-      // Actualizar: solo campos permitidos (no se puede cambiar uid ni createdAt)
+      // Actualizar: no se puede cambiar uid ni createdAt
       allow update: if isOwner(uid)
-        && hasOnly(['displayName', 'email', 'photoURL', 'lastLoginAt']);
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['uid', 'createdAt']);
 
       // No se pueden eliminar perfiles desde el cliente
       allow delete: if false;

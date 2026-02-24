@@ -9,21 +9,20 @@ import { PwaInstallService } from '../../core/services/pwa-install.service';
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-  private authService = inject(AuthService);
+  readonly authService = inject(AuthService);
 
   readonly loading = signal(false);
-  readonly error = signal<string | null>(null);
   readonly particles = Array.from({ length: 10 });
   readonly pwa = inject(PwaInstallService);
 
   async onGoogleLogin(): Promise<void> {
     this.loading.set(true);
-    this.error.set(null);
+    this.authService.loginError.set(null);
     try {
       await this.authService.loginWithGoogle();
-      // signInWithRedirect() redirige a Google — la página se va
+      // signInWithRedirect() navega a Google — la página se va, loading queda en true
     } catch (err) {
-      this.error.set('No se pudo iniciar sesión. Intenta nuevamente.');
+      this.authService.loginError.set('No se pudo iniciar sesión. Intenta nuevamente.');
       console.error(err);
       this.loading.set(false);
     }

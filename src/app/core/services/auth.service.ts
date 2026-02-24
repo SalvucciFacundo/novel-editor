@@ -3,10 +3,10 @@ import { Router } from '@angular/router';
 import {
   GoogleAuthProvider,
   getAdditionalUserInfo,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   onAuthStateChanged,
-  browserPopupRedirectResolver,
   User,
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -19,37 +19,38 @@ export class AuthService {
   private firestore = inject(FIREBASE_FIRESTORE);
   private router = inject(Router);
 
-  /** Señal con el usuario actual (null si no está autenticado) */
   readonly currentUser = signal<User | null>(null);
-
-  /** true si hay sesión activa */
   readonly isLoggedIn = computed(() => !!this.currentUser());
+  readonly loginError = signal<string | null>(null);
 
   constructor() {
     onAuthStateChanged(this.auth, (user) => this.currentUser.set(user));
+
+    // Procesar el resultado del redirect de Google al volver a la app
+    getRedirectResult(this.auth)
+      .then(async (credential) => {
+        if (!credential) return;
+        const additionalInfo = getAdditionalUserInfo(credential);
+        if (additionalInfo?.isNewUser) {
+          await this.createUserProfile(credential.user);
+        } else {
+          await this.updateLastLogin(credential.user.uid);
+        }
+        await this.router.navigate(['/projects']);
+      })
+      .catch((err) => {
+        console.error('Redirect login error:', err);
+        this.loginError.set('No se pudo iniciar sesión. Intenta nuevamente.');
+      });
   }
 
-  /**
-   * Inicia sesión con Google usando el resolver explícito para evitar
-   * problemas de COOP con window.close en desarrollo.
-   */
   async loginWithGoogle(): Promise<void> {
     const provider = new GoogleAuthProvider();
     provider.addScope('email');
     provider.addScope('profile');
     provider.setCustomParameters({ prompt: 'select_account' });
-
-    // browserPopupRedirectResolver evita el error COOP de window.close
-    const credential = await signInWithPopup(this.auth, provider, browserPopupRedirectResolver);
-    const additionalInfo = getAdditionalUserInfo(credential);
-
-    if (additionalInfo?.isNewUser) {
-      await this.createUserProfile(credential.user);
-    } else {
-      await this.updateLastLogin(credential.user.uid);
-    }
-
-    await this.router.navigate(['/projects']);
+    // Redirect evita el error COOP de Firebase Hosting con signInWithPopup
+    await signInWithRedirect(this.auth, provider);
   }
 
   /** Cierra sesión y redirige al login */

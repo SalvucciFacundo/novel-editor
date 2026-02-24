@@ -29,9 +29,9 @@
         </div>
 
         <div class="login-card__body">
-            @if (error()) {
+            @if (authService.loginError()) {
             <div class="login-card__error" role="alert">
-                {{ error() }}
+                {{ authService.loginError() }}
             </div>
             }
 
