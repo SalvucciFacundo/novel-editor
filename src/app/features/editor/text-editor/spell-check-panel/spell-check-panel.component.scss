@@ -224,8 +224,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; /* stylelint-disable-line property-no-vendor-prefix */
+    line-clamp: 2;
+    -webkit-box-orient: vertical; /* stylelint-disable-line property-no-vendor-prefix */
 
     mark {
       background: rgba(239, 68, 68, 0.25);
