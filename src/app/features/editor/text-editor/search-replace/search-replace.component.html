@@ -1,0 +1,74 @@
+<div class="search-bar" role="search" aria-label="Buscar y reemplazar">
+
+    <!-- Fila 1: búsqueda -->
+    <div class="search-bar__row">
+        <div class="search-bar__field">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                aria-hidden="true">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input class="search-bar__input" type="text" placeholder="Buscar…" [(ngModel)]="searchTerm"
+                (ngModelChange)="search()" (keydown.enter)="next()" autofocus aria-label="Término de búsqueda" />
+            @if (statusText()) {
+            <span class="search-bar__status" [class.no-results]="totalMatches() === 0">{{ statusText() }}</span>
+            }
+        </div>
+
+        <button class="search-bar__btn" (click)="prev()" [disabled]="totalMatches() === 0"
+            title="Anterior (Shift+Enter)" aria-label="Resultado anterior">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                aria-hidden="true">
+                <polyline points="15 18 9 12 15 6" />
+            </svg>
+        </button>
+        <button class="search-bar__btn" (click)="next()" [disabled]="totalMatches() === 0" title="Siguiente (Enter)"
+            aria-label="Resultado siguiente">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                aria-hidden="true">
+                <polyline points="9 18 15 12 9 6" />
+            </svg>
+        </button>
+
+        <div class="search-bar__sep"></div>
+
+        <button class="search-bar__btn" [class.active]="caseSensitive()" (click)="toggleCase()"
+            title="Distinguir mayúsculas/minúsculas" aria-label="Distinguir mayúsculas">
+            Aa
+        </button>
+
+        <div class="search-bar__sep"></div>
+
+        <button class="search-bar__btn search-bar__btn--close" (click)="close()" title="Cerrar (Esc)"
+            aria-label="Cerrar búsqueda">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Fila 2: reemplazo -->
+    <div class="search-bar__row">
+        <div class="search-bar__field">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                aria-hidden="true" style="opacity:0.5">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+            </svg>
+            <input class="search-bar__input" type="text" placeholder="Reemplazar con…" [(ngModel)]="replaceTerm"
+                (keydown.enter)="replace()" aria-label="Texto de reemplazo" />
+        </div>
+
+        <button class="search-bar__btn search-bar__btn--action" (click)="replace()" [disabled]="totalMatches() === 0"
+            title="Reemplazar este">
+            Reemplazar
+        </button>
+        <button class="search-bar__btn search-bar__btn--action" (click)="replaceAll()" [disabled]="totalMatches() === 0"
+            title="Reemplazar todos">
+            Reemplazar todos
+        </button>
+    </div>
+
+</div>

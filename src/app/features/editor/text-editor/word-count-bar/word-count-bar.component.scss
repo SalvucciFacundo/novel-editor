@@ -1,0 +1,21 @@
+:host {
+  display: block;
+  flex-shrink: 0;
+}
+
+.word-count-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 0 var(--spacing-lg);
+  height: 1.75rem;
+  background: var(--color-topbar-bg);
+  border-top: 1px solid var(--color-border);
+  font-size: 0.7rem;
+  color: var(--color-text-faint);
+  transition: background var(--transition-slow);
+
+  &__sep {
+    opacity: 0.4;
+  }
+}

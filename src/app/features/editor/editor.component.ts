@@ -7,6 +7,9 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime, filter, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 import { NovelService } from '../../core/services/novel.service';
 import { ChapterService } from '../../core/services/chapter.service';
 import { EditorStateService } from '../../core/services/editor-state.service';
@@ -32,6 +35,8 @@ export class EditorComponent implements OnInit, OnDestroy {
   private auth = inject(AuthService);
   readonly themeService = inject(ThemeService);
 
+  private destroy$ = new Subject<void>();
+
   readonly novelTitle = signal('');
   readonly exportOpen = signal(false);
   readonly saving = this.editorState.saving;
@@ -41,6 +46,17 @@ export class EditorComponent implements OnInit, OnDestroy {
   /** Estado de los drawers en mobile */
   readonly leftOpen = signal(false);
   readonly rightOpen = signal(false);
+
+  constructor() {
+    // Autoguardado: 5 segundos después del último cambio
+    toObservable(this.editorState.hasUnsavedChanges)
+      .pipe(
+        filter((v) => v),
+        debounceTime(5000),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => this.save());
+  }
 
   closeLeft(): void {
     this.leftOpen.set(false);
@@ -59,6 +75,8 @@ export class EditorComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.editorState.novelId.set(null);
     this.editorState.activeChapter.set(null);
     this.editorState.editor?.destroy();

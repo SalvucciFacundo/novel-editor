@@ -32,6 +32,16 @@ export class ToolbarComponent {
   readonly popupTop = signal(0);
   readonly popupLeft = signal(0);
 
+  /** Toggle del panel buscar/reemplazar */
+  toggleSearch(): void {
+    this.state.searchOpen.update((v) => !v);
+    if (this.state.searchOpen()) {
+      // foco lo maneja el autofocus del input en SearchReplaceComponent
+    } else {
+      this.state.editor?.commands.focus();
+    }
+  }
+
   private symbolsBtnEl = viewChild<ElementRef>('symbolsBtn');
   private savedSelection: { from: number; to: number } | null = null;
 

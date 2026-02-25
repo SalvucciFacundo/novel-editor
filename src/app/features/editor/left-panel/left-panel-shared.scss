@@ -15,12 +15,50 @@
     flex-shrink: 0;
   }
 
+  &__header-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  &__view-btn {
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-faint);
+    cursor: pointer;
+    transition:
+      background var(--transition-fast),
+      color var(--transition-fast);
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    &:hover {
+      background: var(--color-surface-2);
+      color: var(--color-text-muted);
+    }
+    &.active {
+      background: rgba(59, 130, 246, 0.14);
+      border-color: rgba(59, 130, 246, 0.3);
+      color: var(--color-primary);
+    }
+  }
+
   &__title {
     font-size: var(--font-size-sm);
     font-weight: 600;
     color: var(--color-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    flex: 1;
   }
 
   &__hint {
@@ -266,6 +304,20 @@
   &--danger:hover {
     background: rgba(248, 113, 113, 0.15);
     color: var(--color-error);
+  }
+  &--order {
+    font-size: 0.85rem;
+    color: var(--color-text-faint);
+
+    &:disabled {
+      opacity: 0.25;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    &:hover:not(:disabled) {
+      background: rgba(59, 130, 246, 0.12);
+      color: var(--color-primary);
+    }
   }
 }
 

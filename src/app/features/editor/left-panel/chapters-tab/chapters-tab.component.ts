@@ -104,4 +104,26 @@ export class ChaptersTabComponent {
     const novelId = this.state.novelId();
     if (novelId) await this.load(novelId);
   }
+
+  async moveUp(event: Event, chapter: Chapter): Promise<void> {
+    event.stopPropagation();
+    const list = [...this.chapters()];
+    const idx = list.findIndex((c) => c.id === chapter.id);
+    if (idx <= 0) return;
+    [list[idx - 1], list[idx]] = [list[idx], list[idx - 1]];
+    list.forEach((c, i) => (c.order = i));
+    this.chapters.set(list);
+    await this.chapterService.reorder(list.map((c) => ({ id: c.id, order: c.order })));
+  }
+
+  async moveDown(event: Event, chapter: Chapter): Promise<void> {
+    event.stopPropagation();
+    const list = [...this.chapters()];
+    const idx = list.findIndex((c) => c.id === chapter.id);
+    if (idx >= list.length - 1) return;
+    [list[idx], list[idx + 1]] = [list[idx + 1], list[idx]];
+    list.forEach((c, i) => (c.order = i));
+    this.chapters.set(list);
+    await this.chapterService.reorder(list.map((c) => ({ id: c.id, order: c.order })));
+  }
 }

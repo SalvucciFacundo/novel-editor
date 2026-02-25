@@ -1,10 +1,37 @@
 <div class="tab">
     <header class="tab__header">
         <span class="tab__title">Personajes</span>
-        <button class="tab__add-btn" (click)="startCreate()" title="Nuevo personaje">+</button>
+        <div class="tab__header-actions">
+            <!-- Toggle vista lista / tablero -->
+            <button class="tab__view-btn" [class.active]="viewMode() === 'list'" (click)="viewMode.set('list')"
+                title="Vista lista" aria-label="Vista lista">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    aria-hidden="true">
+                    <line x1="8" y1="6" x2="21" y2="6" />
+                    <line x1="8" y1="12" x2="21" y2="12" />
+                    <line x1="8" y1="18" x2="21" y2="18" />
+                    <line x1="3" y1="6" x2="3.01" y2="6" />
+                    <line x1="3" y1="12" x2="3.01" y2="12" />
+                    <line x1="3" y1="18" x2="3.01" y2="18" />
+                </svg>
+            </button>
+            <button class="tab__view-btn" [class.active]="viewMode() === 'board'" (click)="viewMode.set('board')"
+                title="Vista tablero" aria-label="Vista tablero">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    aria-hidden="true">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                </svg>
+            </button>
+            <button class="tab__add-btn" (click)="startCreate()" title="Nuevo personaje">+</button>
+        </div>
     </header>
 
+    @if (viewMode() === 'list') {
     <p class="tab__hint">Click en un nombre para insertarlo en el cursor</p>
+    }
 
     <!-- Formulario nuevo personaje -->
     @if (creating()) {
@@ -20,7 +47,8 @@
     </div>
     }
 
-    <!-- Lista -->
+    <!-- ── VISTA LISTA ─────────────────────────── -->
+    @if (viewMode() === 'list') {
     <ul class="tab__list" role="list">
         @for (character of characters(); track character.id) {
         <li class="char-item">
@@ -30,6 +58,10 @@
                     (keydown.escape)="cancelEdit()" autofocus />
                 <input class="tab__inline-input" type="text" [(ngModel)]="editRole" placeholder="Rol"
                     (keydown.enter)="confirmEdit(character.id)" />
+                <textarea class="tab__inline-input tab__inline-input--textarea" [(ngModel)]="editDesc"
+                    placeholder="Descripción (opcional)" rows="3"></textarea>
+                <input class="tab__inline-input" type="text" [(ngModel)]="editTraits"
+                    placeholder="Rasgos separados por comas" />
                 <div class="tab__inline-actions">
                     <button class="btn-confirm" (click)="confirmEdit(character.id)">✓</button>
                     <button class="btn-cancel" (click)="cancelEdit()">✕</button>
@@ -56,4 +88,68 @@
         <li class="tab__empty">Sin personajes aún</li>
         }
     </ul>
+    }
+
+    <!-- ── VISTA TABLERO ───────────────────────── -->
+    @if (viewMode() === 'board') {
+    <div class="char-board">
+
+        @if (characters().length === 0 && !creating()) {
+        <p class="tab__empty">Sin personajes aún</p>
+        }
+
+        @for (character of characters(); track character.id) {
+
+        @if (editingId() === character.id) {
+        <div class="tab__inline-form tab__inline-form--col">
+            <input class="tab__inline-input" type="text" [(ngModel)]="editName" placeholder="Nombre"
+                (keydown.escape)="cancelEdit()" autofocus />
+            <input class="tab__inline-input" type="text" [(ngModel)]="editRole" placeholder="Rol" />
+            <textarea class="tab__inline-input tab__inline-input--textarea" [(ngModel)]="editDesc"
+                placeholder="Descripción (opcional)" rows="3"></textarea>
+            <input class="tab__inline-input" type="text" [(ngModel)]="editTraits"
+                placeholder="Rasgos separados por comas" />
+            <div class="tab__inline-actions">
+                <button class="btn-confirm" (click)="confirmEdit(character.id)">✓</button>
+                <button class="btn-cancel" (click)="cancelEdit()">✕</button>
+            </div>
+        </div>
+        } @else {
+        <article class="char-card" [class]="roleColor(character.role)">
+            <div class="char-card__top">
+                <div class="char-card__avatar">{{ initials(character.name) }}</div>
+                <div class="char-card__info">
+                    <button class="char-card__name" (click)="insertName(character.name)"
+                        [title]="'Insertar «' + character.name + '» en el editor'">
+                        {{ character.name }}
+                    </button>
+                    @if (character.role) {
+                    <span class="char-card__role-badge">{{ character.role }}</span>
+                    }
+                </div>
+                <div class="char-card__actions">
+                    <button class="icon-btn" (click)="startEdit(character)" title="Editar">✏</button>
+                    <button class="icon-btn icon-btn--danger" (click)="deleteCharacter($event, character.id)"
+                        title="Eliminar">🗑</button>
+                </div>
+            </div>
+
+            @if (character.description) {
+            <p class="char-card__desc">{{ character.description }}</p>
+            }
+
+            @if (character.traits?.length) {
+            <div class="char-card__traits">
+                @for (trait of character.traits!; track trait) {
+                <span class="char-card__trait">{{ trait }}</span>
+                }
+            </div>
+            }
+        </article>
+        }
+
+        }
+    </div>
+    }
+
 </div>

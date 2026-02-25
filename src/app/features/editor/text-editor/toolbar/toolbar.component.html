@@ -51,6 +51,16 @@
         }
     </div>
 
+    <!-- Separador + botón buscar -->
+    <button class="toolbar__btn" [class.active]="state.searchOpen()" (click)="toggleSearch()" [disabled]="!editor"
+        title="Buscar y reemplazar (Ctrl+F)" aria-label="Buscar en el documento">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            aria-hidden="true" style="width:13px;height:13px">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+    </button>
+
     <!-- Separador + botón revisar -->
     <div class="toolbar__sep"></div>
     <button class="toolbar__btn toolbar__btn--check" (click)="checkSpelling()" [class.active]="lt.panelOpen()"

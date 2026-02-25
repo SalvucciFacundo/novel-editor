@@ -32,6 +32,10 @@
             }
 
             <div class="chapter-item__actions" (click)="$event.stopPropagation()">
+                <button class="icon-btn icon-btn--order" (click)="moveUp($event, chapter)" title="Subir"
+                    [disabled]="$index === 0">↑</button>
+                <button class="icon-btn icon-btn--order" (click)="moveDown($event, chapter)" title="Bajar"
+                    [disabled]="$index === chapters().length - 1">↓</button>
                 <button class="icon-btn" (click)="startRename(chapter)" title="Renombrar">✏</button>
                 <button class="icon-btn icon-btn--danger" (click)="deleteChapter($event, chapter.id)"
                     title="Eliminar">🗑</button>

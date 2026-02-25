@@ -23,6 +23,15 @@ export class EditorStateService {
   /** true mientras se guarda */
   readonly saving = signal(false);
 
+  /** Conteo de palabras en tiempo real */
+  readonly wordCount = signal(0);
+
+  /** Conteo de caracteres en tiempo real */
+  readonly charCount = signal(0);
+
+  /** Panel de búsqueda/reemplazo abierto */
+  readonly searchOpen = signal(false);
+
   /**
    * Inserta texto en la posición actual del cursor en Tiptap.
    * Usado por el tab de personajes para insertar nombres.
