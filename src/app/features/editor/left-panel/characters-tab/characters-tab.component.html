@@ -76,7 +76,7 @@
             <span class="char-item__role">{{ character.role }}</span>
             }
             <div class="char-item__actions">
-                <button class="icon-btn" (click)="startEdit(character)" title="Editar">✏</button>
+                <button class="icon-btn icon-btn--edit" (click)="startEdit(character)" title="Editar">✏</button>
                 <button class="icon-btn icon-btn--danger" (click)="deleteCharacter($event, character.id)"
                     title="Eliminar">🗑</button>
             </div>
@@ -128,7 +128,7 @@
                     }
                 </div>
                 <div class="char-card__actions">
-                    <button class="icon-btn" (click)="startEdit(character)" title="Editar">✏</button>
+                    <button class="icon-btn icon-btn--edit" (click)="startEdit(character)" title="Editar">✏</button>
                     <button class="icon-btn icon-btn--danger" (click)="deleteCharacter($event, character.id)"
                         title="Eliminar">🗑</button>
                 </div>

@@ -36,7 +36,7 @@
                     [disabled]="$index === 0">↑</button>
                 <button class="icon-btn icon-btn--order" (click)="moveDown($event, chapter)" title="Bajar"
                     [disabled]="$index === chapters().length - 1">↓</button>
-                <button class="icon-btn" (click)="startRename(chapter)" title="Renombrar">✏</button>
+                <button class="icon-btn icon-btn--edit" (click)="startRename(chapter)" title="Renombrar">✏</button>
                 <button class="icon-btn icon-btn--danger" (click)="deleteChapter($event, chapter.id)"
                     title="Eliminar">🗑</button>
             </div>

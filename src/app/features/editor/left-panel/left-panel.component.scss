@@ -3,11 +3,28 @@
   flex-direction: column;
   height: 100vh;
   background: var(--color-panel-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   overflow: hidden;
   border-right: 1px solid var(--color-border);
   transition: background var(--transition-slow);
+  position: relative;
+
+  // backdrop-filter en pseudo-elemento para NO crear containing block
+  // sobre position:fixed (ej: modal de notas) — si está en el elemento
+  // padre, los hijos fixed quedan encajonados dentro del panel.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
 
   @media (max-width: 768px) {
     position: fixed;

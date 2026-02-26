@@ -46,11 +46,11 @@
             }
             <div class="note-modal__header-actions">
                 @if (!editing()) {
-                <button class="icon-btn" (click)="startEdit()" title="Editar">✏</button>
+                <button class="icon-btn icon-btn--edit" (click)="startEdit()" title="Editar">✏</button>
                 <button class="icon-btn icon-btn--danger" (click)="deleteNote(modalNote()!.id)"
                     title="Eliminar">🗑</button>
                 }
-                <button class="icon-btn" (click)="closeModal()" title="Cerrar">✕</button>
+                <button class="icon-btn note-modal__close-btn" (click)="closeModal()" title="Cerrar">✕</button>
             </div>
         </header>
 
