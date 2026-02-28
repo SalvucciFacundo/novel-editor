@@ -10,6 +10,8 @@ import {
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { EditorStateService } from '../../../core/services/editor-state.service';
+import { ChapterService } from '../../../core/services/chapter.service';
+import { Chapter } from '../../../models/chapter.model';
 
 type ChatMode = 'query' | 'agent';
 type PromptPreset = 'literario' | 'agente' | 'corrector' | 'personalizado';
@@ -100,6 +102,7 @@ export class AiChatComponent {
 
   private http = inject(HttpClient);
   private editorState = inject(EditorStateService);
+  private chapterService = inject(ChapterService);
 
   readonly providers = PROVIDERS;
   readonly promptPresetsKeys: PromptPreset[] = [
@@ -122,6 +125,12 @@ export class AiChatComponent {
   readonly showConfig = signal(false);
   readonly imagePreview = signal<string | null>(null);
   readonly promptPreset = signal<PromptPreset>('literario');
+  /** Incluir el contenido completo de todos los capítulos en el contexto */
+  readonly includeAllChapters = signal(false);
+  /** true mientras se cargan los contenidos de capítulos */
+  readonly loadingChapters = signal(false);
+  /** Capítulos con contenido completo, cargados al activar el toggle */
+  private chaptersFullContent = signal<Chapter[]>([]);
 
   // Config fields
   apiKey = '';
@@ -215,11 +224,57 @@ export class AiChatComponent {
   }
 
   private buildSystemPrompt(): string {
+    const novel = this.editorState.novel();
     const chapter = this.editorState.activeChapter();
+    const allChapters = this.editorState.allChapters();
+    const characters = this.editorState.characters();
     const chapterText = this.editorState.editor?.getText({ blockSeparator: '\n' }) ?? '';
 
-    const contextBlock = chapter
-      ? `\n\n--- CONTEXTO DEL CAPÍTULO ACTUAL ---\nTítulo: "${chapter.title}"\nTexto:\n${chapterText.slice(0, 3000)}${chapterText.length > 3000 ? '\n[... texto truncado ...]' : ''}\n---`
+    // Bloque de novela (siempre incluido si hay datos)
+    const novelBlock = novel
+      ? `\n\n--- NOVELA ---\nTítulo: "${novel.title}"${
+          novel.description ? `\nSinopsis: ${novel.description}` : ''
+        }${novel.tags?.length ? `\nGéneros: ${novel.tags.join(', ')}` : ''}\n---`
+      : '';
+
+    // Bloque de personajes (siempre incluido si existen)
+    const charsBlock = characters.length
+      ? `\n\n--- PERSONAJES ---\n${characters
+          .map(
+            (c) =>
+              `- ${c.name}${c.role ? ` (${c.role})` : ''}${
+                c.description ? `: ${c.description.slice(0, 150)}` : ''
+              }`,
+          )
+          .join('\n')}\n---`
+      : '';
+
+    // Lista de títulos de capítulos (siempre incluida si existen)
+    const chapListBlock = allChapters.length
+      ? `\n\n--- CAPÍTULOS ---\n${allChapters
+          .map((c, i) => `${i + 1}. ${c.title}${c.id === chapter?.id ? ' ← ACTUAL' : ''}`)
+          .join('\n')}\n---`
+      : '';
+
+    // Contenido completo de capítulos anteriores (solo si el toggle está activo)
+    const prevChapters = this.chaptersFullContent().filter((c) => c.id !== chapter?.id);
+    const fullChaptersBlock =
+      this.includeAllChapters() && prevChapters.length
+        ? `\n\n--- CONTENIDO DE CAPÍTULOS ANTERIORES ---\n${prevChapters
+            .map((c) => {
+              const text = (c.content ?? '').replace(/<[^>]*>/g, '').trim();
+              return text
+                ? `### ${c.title}\n${text.slice(0, 1500)}${text.length > 1500 ? '\n[... truncado ...]' : ''}`
+                : `### ${c.title}\n[Sin contenido]`;
+            })
+            .join('\n\n')}\n---`
+        : '';
+
+    // Capítulo activo con texto completo
+    const activeChapterBlock = chapter
+      ? `\n\n--- CAPÍTULO ACTIVO: "${chapter.title}" ---\n${chapterText.slice(0, 3000)}${
+          chapterText.length > 3000 ? '\n[... texto truncado ...]' : ''
+        }\n---`
       : '';
 
     const preset = this.promptPreset();
@@ -228,7 +283,7 @@ export class AiChatComponent {
         ? this.customSystemPrompt.trim() || PROMPT_PRESETS.literario
         : PROMPT_PRESETS[preset];
 
-    return `${basePrompt}${contextBlock}`;
+    return `${basePrompt}${novelBlock}${charsBlock}${chapListBlock}${fullChaptersBlock}${activeChapterBlock}`;
   }
 
   private async callApi(systemPrompt: string, imageBase64: string | null): Promise<string> {
@@ -281,6 +336,26 @@ export class AiChatComponent {
 
   clearChat(): void {
     this.messages.set([]);
+  }
+
+  async toggleIncludeChapters(): Promise<void> {
+    const enabling = !this.includeAllChapters();
+    this.includeAllChapters.set(enabling);
+    if (!enabling) {
+      this.chaptersFullContent.set([]);
+      return;
+    }
+    const novelId = this.editorState.novelId();
+    if (!novelId) return;
+    this.loadingChapters.set(true);
+    try {
+      const chapters = await this.chapterService.getChapters(novelId);
+      this.chaptersFullContent.set(chapters);
+    } catch {
+      this.includeAllChapters.set(false);
+    } finally {
+      this.loadingChapters.set(false);
+    }
   }
 
   private scrollToBottom(): void {

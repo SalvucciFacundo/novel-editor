@@ -134,6 +134,12 @@
 
         <div class="ai-chat__footer-actions">
             <button class="link-btn" (click)="clearChat()">Limpiar chat</button>
+            <button class="link-btn" [class.link-btn--active]="includeAllChapters()" [disabled]="loadingChapters()"
+                (click)="toggleIncludeChapters()"
+                title="Incluir el contenido de todos los capítulos en el contexto del agente">
+                {{ loadingChapters() ? '⏳ Cargando...' : (includeAllChapters() ? '📚 Caps incluidos' : '📚 Incluir
+                caps') }}
+            </button>
         </div>
     </div>
 

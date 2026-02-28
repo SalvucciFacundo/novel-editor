@@ -35,6 +35,7 @@ export class ChaptersTabComponent {
     try {
       const data = await this.chapterService.getChapters(novelId);
       this.chapters.set(data);
+      this.state.allChapters.set(data);
     } catch {
       this.toast.error('Error al cargar los capítulos.');
     }

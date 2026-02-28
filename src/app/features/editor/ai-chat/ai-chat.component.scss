@@ -154,7 +154,9 @@
 
   &__footer-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
   }
 }
 
@@ -448,6 +450,20 @@
   &:hover {
     color: var(--color-text-muted);
     text-decoration: underline;
+  }
+
+  &--active {
+    color: var(--color-primary, #7c6af7);
+    font-weight: 600;
+
+    &:hover {
+      color: var(--color-primary, #7c6af7);
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }
 

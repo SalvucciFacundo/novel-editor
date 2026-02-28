@@ -1,6 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 import { Editor } from '@tiptap/core';
 import { Chapter } from '../../models/chapter.model';
+import { Character } from '../../models/character.model';
+import { Novel } from '../../models/novel.model';
 
 /**
  * Servicio singleton que comparte el estado del editor entre todos los subcomponentes.
@@ -13,6 +15,15 @@ export class EditorStateService {
 
   /** ID de la novela activa */
   readonly novelId = signal<string | null>(null);
+
+  /** Objeto completo de la novela activa */
+  readonly novel = signal<Novel | null>(null);
+
+  /** Todos los capítulos de la novela (títulos + orden, sin contenido completo salvo el activo) */
+  readonly allChapters = signal<Chapter[]>([]);
+
+  /** Todos los personajes de la novela */
+  readonly characters = signal<Character[]>([]);
 
   /** Capítulo actualmente cargado en el editor */
   readonly activeChapter = signal<Chapter | null>(null);

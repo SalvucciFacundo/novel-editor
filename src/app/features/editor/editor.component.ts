@@ -80,6 +80,9 @@ export class EditorComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
     this.editorState.novelId.set(null);
+    this.editorState.novel.set(null);
+    this.editorState.allChapters.set([]);
+    this.editorState.characters.set([]);
     this.editorState.activeChapter.set(null);
     this.editorState.editor?.destroy();
     this.editorState.editor = null;
@@ -90,7 +93,10 @@ export class EditorComponent implements OnInit, OnDestroy {
     if (!uid) return;
     const novels = await this.novelService.getNovels(uid);
     const novel = novels.find((n) => n.id === this.novelId());
-    if (novel) this.novelTitle.set(novel.title);
+    if (novel) {
+      this.novelTitle.set(novel.title);
+      this.editorState.novel.set(novel);
+    }
   }
 
   async save(): Promise<void> {

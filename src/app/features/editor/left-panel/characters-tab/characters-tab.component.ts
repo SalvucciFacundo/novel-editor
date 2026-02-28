@@ -59,6 +59,7 @@ export class CharactersTabComponent {
     try {
       const data = await this.characterService.getCharacters(novelId);
       this.characters.set(data);
+      this.state.characters.set(data);
     } catch {
       this.toast.error('Error al cargar los personajes.');
     }
