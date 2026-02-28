@@ -25,18 +25,48 @@
             }
         </select>
 
+        <!-- URL personalizada (Colab / cualquier endpoint) -->
+        @if (selectedProvider().customUrl) {
+        <label class="config-label">URL del endpoint <span class="config-hint-inline">(OpenAI-compatible)</span></label>
+        <input class="config-input" type="text" [(ngModel)]="customUrl"
+            placeholder="https://xxxx-xx-xx.ngrok-free.app/v1/chat/completions" />
+        <label class="config-label">Nombre del modelo</label>
+        <input class="config-input" type="text" [(ngModel)]="customModel"
+            placeholder="ej: local-model, mistral, llama3" />
+        <p class="config-hint">Servidor levantado en Colab con API compatible con OpenAI (vLLM, llama.cpp, etc.)</p>
+        } @else {
         <label class="config-label">Modelo</label>
         <select class="config-select" [ngModel]="selectedModel()" (ngModelChange)="selectedModel.set($event)">
             @for (m of selectedProvider().models; track m) {
             <option [value]="m">{{ m }}</option>
             }
         </select>
+        }
 
-        @if (selectedProvider().id !== 'ollama') {
+        @if (selectedProvider().id !== 'ollama' && !selectedProvider().customUrl) {
         <label class="config-label">API Key</label>
         <input class="config-input" type="password" [(ngModel)]="apiKey" placeholder="sk-..." autocomplete="off" />
-        } @else {
+        } @else if (selectedProvider().id === 'ollama') {
         <p class="config-hint">Ollama debe estar corriendo en localhost:11434</p>
+        }
+
+        <div class="config-divider" aria-hidden="true"></div>
+
+        <!-- Preset de system prompt -->
+        <label class="config-label">Perfil de escritura</label>
+        <div class="config-preset-row">
+            @for (key of promptPresetsKeys; track key) {
+            <button class="config-preset-btn" [class.active]="promptPreset() === key"
+                (click)="promptPreset.set(key)" type="button">
+                {{ promptPresetLabels[key] }}
+            </button>
+            }
+        </div>
+
+        @if (promptPreset() === 'personalizado') {
+        <label class="config-label">System prompt personalizado</label>
+        <textarea class="config-textarea" [(ngModel)]="customSystemPrompt" rows="6"
+            placeholder="Definí el rol, estilo y comportamiento del modelo..."></textarea>
         }
     </div>
     }

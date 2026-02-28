@@ -12,12 +12,14 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { EditorStateService } from '../../../core/services/editor-state.service';
 
 type ChatMode = 'query' | 'agent';
+type PromptPreset = 'literario' | 'agente' | 'corrector' | 'personalizado';
 
 interface AiProvider {
   id: string;
   label: string;
   baseUrl: string;
   models: string[];
+  customUrl?: boolean;
 }
 
 interface Message {
@@ -45,7 +47,43 @@ const PROVIDERS: AiProvider[] = [
     baseUrl: 'http://localhost:11434/v1/chat/completions',
     models: ['llama3.2', 'llama3.1', 'mistral', 'deepseek-r1'],
   },
+  {
+    id: 'custom',
+    label: 'Custom / Colab',
+    baseUrl: '',
+    models: ['custom-model'],
+    customUrl: true,
+  },
 ];
+
+const PROMPT_PRESETS: Record<PromptPreset, string> = {
+  literario: `Eres un asistente literario especializado en escritura creativa de novelas. Tu rol es:
+- Ayudar a desarrollar personajes con profundidad psicológica y motivaciones creíbles
+- Sugerir giros narrativos, subtramas y arcos de personaje coherentes
+- Mantener el tono, voz y estilo de la historia ya establecida
+- Señalar inconsistencias de trama, cronología o caracterización
+- Proponer descripciones vívidas, diálogos naturales y escenas con tensión dramática
+- Recomendar técnicas narrativas (punto de vista, foreshadowing, in media res, etc.)
+- Responder siempre en el idioma del escritor (español por defecto)
+
+Mantené las respuestas concretas, útiles y orientadas a la escritura.`,
+
+  agente: `Eres un agente de escritura activo. Podés modificar texto, reescribir fragmentos, continuar escenas y proponer versiones alternativas de párrafos.
+Cuando el escritor te pida cambiar algo, devolvé el texto modificado directamente sin explicaciones innecesarias (a menos que se pida).
+Mantené siempre el estilo, voz y tono del texto original. Si no hay instrucción de estilo, preferí prosa clara y literaria.
+Si proponés cambios significativos, presentá primero la versión nueva y luego una breve justificación de los cambios.`,
+
+  corrector: `Eres un editor y corrector literario experto. Tu función es:
+- Corregir ortografía, gramática y puntuación
+- Mejorar la fluidez y cohesión del texto sin cambiar la voz del autor
+- Identificar repeticiones de palabras o frases
+- Señalar párrafos que rompen el ritmo o la coherencia
+- Sugerir sinónimos cuando sea apropiado
+- Revisar que los diálogos tengan formato correcto
+Presentá los errores de forma clara y justificá cada corrección sugerida.`,
+
+  personalizado: '',
+};
 
 @Component({
   selector: 'app-ai-chat',
@@ -64,6 +102,13 @@ export class AiChatComponent {
   private editorState = inject(EditorStateService);
 
   readonly providers = PROVIDERS;
+  readonly promptPresetsKeys: PromptPreset[] = ['literario', 'agente', 'corrector', 'personalizado'];
+  readonly promptPresetLabels: Record<PromptPreset, string> = {
+    literario: '📖 Literario',
+    agente: '🤖 Agente',
+    corrector: '✏ Corrector',
+    personalizado: '⚙ Personalizado',
+  };
   readonly mode = signal<ChatMode>('query');
   readonly selectedProvider = signal(PROVIDERS[0]);
   readonly selectedModel = signal(PROVIDERS[0].models[0]);
@@ -71,13 +116,22 @@ export class AiChatComponent {
   readonly loading = signal(false);
   readonly showConfig = signal(false);
   readonly imagePreview = signal<string | null>(null);
+  readonly promptPreset = signal<PromptPreset>('literario');
 
   // Config fields
   apiKey = '';
   userInput = '';
+  customUrl = '';
+  customModel = 'local-model';
+  customSystemPrompt = '';
 
   setMode(mode: ChatMode): void {
     this.mode.set(mode);
+    if (mode === 'agent' && this.promptPreset() === 'literario') {
+      this.promptPreset.set('agente');
+    } else if (mode === 'query' && this.promptPreset() === 'agente') {
+      this.promptPreset.set('literario');
+    }
   }
 
   selectProvider(id: string): void {
@@ -85,6 +139,18 @@ export class AiChatComponent {
     this.selectedProvider.set(provider);
     this.selectedModel.set(provider.models[0]);
     this.apiKey = '';
+  }
+
+  getEffectiveUrl(): string {
+    const p = this.selectedProvider();
+    if (p.customUrl) return this.customUrl.trim();
+    return p.baseUrl;
+  }
+
+  getEffectiveModel(): string {
+    const p = this.selectedProvider();
+    if (p.customUrl) return this.customModel.trim() || 'local-model';
+    return this.selectedModel();
   }
 
   onFileSelected(event: Event): void {
@@ -105,7 +171,11 @@ export class AiChatComponent {
   async sendMessage(): Promise<void> {
     const content = this.userInput.trim();
     if (!content && !this.imagePreview()) return;
-    if (!this.apiKey && this.selectedProvider().id !== 'ollama') return;
+
+    const isCustom = this.selectedProvider().customUrl;
+    const needsKey = !isCustom && this.selectedProvider().id !== 'ollama';
+    if (needsKey && !this.apiKey) return;
+    if (isCustom && !this.customUrl.trim()) return;
 
     const userMsg: Message = {
       role: 'user',
@@ -126,12 +196,12 @@ export class AiChatComponent {
       const response = await this.callApi(systemPrompt, img);
       this.messages.update((m) => [...m, { role: 'assistant', content: response }]);
       setTimeout(() => this.scrollToBottom(), 50);
-    } catch (err) {
+    } catch {
       this.messages.update((m) => [
         ...m,
         {
           role: 'assistant',
-          content: '⚠ Error al conectar con la IA. Verificá tu API key y conexión.',
+          content: '⚠ Error al conectar con la IA. Verificá la URL, el modelo y tu conexión.',
         },
       ]);
     } finally {
@@ -141,35 +211,38 @@ export class AiChatComponent {
 
   private buildSystemPrompt(): string {
     const chapter = this.editorState.activeChapter();
-    const context = chapter
-      ? `Estás ayudando a escribir una novela web. El capítulo actual se llama "${chapter.title}". Texto actual:\n\n${this.editorState.editor?.getText() ?? ''}`
-      : 'Estás ayudando a escribir una novela web.';
+    const chapterText = this.editorState.editor?.getText({ blockSeparator: '\n' }) ?? '';
 
-    if (this.mode() === 'agent') {
-      return `${context}\n\nEres un agente de escritura creativa. Podés modificar el texto, sugerir cambios, analizar imágenes y ayudar activamente con la historia. Cuando propongas cambios de texto, preséntalos claramente.`;
-    }
-    return `${context}\n\nEres un asistente de consulta para escritores. Respondé preguntas sobre la historia, personajes, coherencia narrativa y estilo.`;
+    const contextBlock = chapter
+      ? `\n\n--- CONTEXTO DEL CAPÍTULO ACTUAL ---\nTítulo: "${chapter.title}"\nTexto:\n${chapterText.slice(0, 3000)}${chapterText.length > 3000 ? '\n[... texto truncado ...]' : ''}\n---`
+      : '';
+
+    const preset = this.promptPreset();
+    const basePrompt =
+      preset === 'personalizado'
+        ? (this.customSystemPrompt.trim() || PROMPT_PRESETS.literario)
+        : PROMPT_PRESETS[preset];
+
+    return `${basePrompt}${contextBlock}`;
   }
 
   private async callApi(systemPrompt: string, imageBase64: string | null): Promise<string> {
-    const provider = this.selectedProvider();
-    const model = this.selectedModel();
+    const url = this.getEffectiveUrl();
+    const model = this.getEffectiveModel();
+    const isCustom = this.selectedProvider().customUrl;
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${this.apiKey || 'ollama'}`,
+      Authorization: `Bearer ${this.apiKey || (isCustom ? 'none' : 'ollama')}`,
     });
 
-    const userContent: unknown[] = this.messages()
-      .slice(-1)
-      .map((m) => {
-        if (imageBase64 && m.role === 'user') {
-          return [
-            { type: 'text', text: m.content },
+    const lastUserMsg = this.messages().slice(-1)[0];
+    const userContent: unknown =
+      imageBase64
+        ? [
+            { type: 'text', text: lastUserMsg.content },
             { type: 'image_url', image_url: { url: imageBase64 } },
-          ];
-        }
-        return m.content;
-      });
+          ]
+        : lastUserMsg.content;
 
     const body = {
       model,
@@ -178,23 +251,19 @@ export class AiChatComponent {
         ...this.messages()
           .slice(0, -1)
           .map((m) => ({ role: m.role, content: m.content })),
-        {
-          role: 'user',
-          content: imageBase64 ? userContent[0] : this.messages().slice(-1)[0].content,
-        },
+        { role: 'user', content: userContent },
       ],
       max_tokens: 2048,
       temperature: 0.7,
     };
 
     const response = await this.http
-      .post<{ choices: { message: { content: string } }[] }>(provider.baseUrl, body, { headers })
+      .post<{ choices: { message: { content: string } }[] }>(url, body, { headers })
       .toPromise();
 
     return response?.choices[0]?.message?.content ?? 'Sin respuesta.';
   }
 
-  /** Si modo agente: inserta la respuesta en el editor */
   applyToEditor(content: string): void {
     this.editorState.insertTextAtCursor('\n\n' + content);
   }
