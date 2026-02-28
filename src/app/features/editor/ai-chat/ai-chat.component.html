@@ -19,7 +19,7 @@
     @if (showConfig()) {
     <div class="ai-chat__config">
         <label class="config-label">Proveedor</label>
-        <select class="config-select" (change)="selectProvider($any($event.target).value)">
+        <select class="config-select" [ngModel]="selectedProvider().id" (ngModelChange)="selectProvider($event)">
             @for (p of providers; track p.id) {
             <option [value]="p.id">{{ p.label }}</option>
             }
@@ -29,10 +29,11 @@
         @if (selectedProvider().customUrl) {
         <label class="config-label">URL del endpoint <span class="config-hint-inline">(OpenAI-compatible)</span></label>
         <input class="config-input" type="text" [(ngModel)]="customUrl"
+            (ngModelChange)="saveConfigField('customUrl', $event)"
             placeholder="https://xxxx-xx-xx.ngrok-free.app/v1/chat/completions" />
         <label class="config-label">Nombre del modelo</label>
         <input class="config-input" type="text" [(ngModel)]="customModel"
-            placeholder="ej: local-model, mistral, llama3" />
+            (ngModelChange)="saveConfigField('customModel', $event)" placeholder="ej: local-model, mistral, llama3" />
         <p class="config-hint">Servidor levantado en Colab con API compatible con OpenAI (vLLM, llama.cpp, etc.)</p>
         } @else {
         <label class="config-label">Modelo</label>
@@ -45,7 +46,8 @@
 
         @if (selectedProvider().id !== 'ollama' && !selectedProvider().customUrl) {
         <label class="config-label">API Key</label>
-        <input class="config-input" type="password" [(ngModel)]="apiKey" placeholder="sk-..." autocomplete="off" />
+        <input class="config-input" type="password" [(ngModel)]="apiKey"
+            (ngModelChange)="saveConfigField('apiKey', $event)" placeholder="sk-..." autocomplete="off" />
         } @else if (selectedProvider().id === 'ollama') {
         <p class="config-hint">Ollama debe estar corriendo en localhost:11434</p>
         }
@@ -65,9 +67,12 @@
 
         @if (promptPreset() === 'personalizado') {
         <label class="config-label">System prompt personalizado</label>
-        <textarea class="config-textarea" [(ngModel)]="customSystemPrompt" rows="6"
+        <textarea class="config-textarea" [(ngModel)]="customSystemPrompt"
+            (ngModelChange)="saveConfigField('customSystemPrompt', $event)" rows="6"
             placeholder="Definí el rol, estilo y comportamiento del modelo..."></textarea>
         }
+
+        <button class="config-save-btn" type="button" (click)="saveConfig()">Guardar</button>
     </div>
     }
 

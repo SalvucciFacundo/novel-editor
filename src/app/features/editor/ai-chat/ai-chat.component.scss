@@ -234,6 +234,24 @@
   margin: var(--spacing-xs) 0;
 }
 
+.config-save-btn {
+  width: 100%;
+  margin-top: var(--spacing-sm);
+  padding: 0.45rem 1rem;
+  background: var(--color-primary, #7c6af7);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 0.88;
+  }
+}
+
 .config-preset-row {
   display: flex;
   flex-wrap: wrap;

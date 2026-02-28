@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  effect,
   inject,
   output,
   signal,
@@ -11,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { EditorStateService } from '../../../core/services/editor-state.service';
 import { ChapterService } from '../../../core/services/chapter.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { Chapter } from '../../../models/chapter.model';
 
 type ChatMode = 'query' | 'agent';
@@ -103,6 +105,7 @@ export class AiChatComponent {
   private http = inject(HttpClient);
   private editorState = inject(EditorStateService);
   private chapterService = inject(ChapterService);
+  private toast = inject(ToastService);
 
   readonly providers = PROVIDERS;
   readonly promptPresetsKeys: PromptPreset[] = [
@@ -139,6 +142,64 @@ export class AiChatComponent {
   customModel = 'local-model';
   customSystemPrompt = '';
 
+  private readonly STORAGE_KEY = 'ai-chat-config';
+
+  constructor() {
+    this.loadConfig();
+    // Persiste la config en localStorage cuando cambia cualquier campo relevante
+    effect(() => {
+      const cfg = {
+        providerId: this.selectedProvider().id,
+        selectedModel: this.selectedModel(),
+        promptPreset: this.promptPreset(),
+      };
+      try {
+        const stored = JSON.parse(localStorage.getItem(this.STORAGE_KEY) ?? '{}');
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify({ ...stored, ...cfg }));
+      } catch {
+        /* SSR o modo privado */
+      }
+    });
+  }
+
+  private loadConfig(): void {
+    try {
+      const raw = localStorage.getItem(this.STORAGE_KEY);
+      if (!raw) return;
+      const cfg = JSON.parse(raw) as Record<string, string>;
+      if (cfg['providerId']) {
+        const p = PROVIDERS.find((p) => p.id === cfg['providerId']);
+        if (p) {
+          this.selectedProvider.set(p);
+          if (!p.customUrl && cfg['selectedModel'] && p.models.includes(cfg['selectedModel'])) {
+            this.selectedModel.set(cfg['selectedModel']);
+          }
+        }
+      }
+      if (cfg['promptPreset']) this.promptPreset.set(cfg['promptPreset'] as PromptPreset);
+      if (cfg['customUrl']) this.customUrl = cfg['customUrl'];
+      if (cfg['customModel']) this.customModel = cfg['customModel'];
+      if (cfg['apiKey']) this.apiKey = cfg['apiKey'];
+      if (cfg['customSystemPrompt']) this.customSystemPrompt = cfg['customSystemPrompt'];
+    } catch {
+      /* ignorar */
+    }
+  }
+
+  saveConfig(): void {
+    this.showConfig.set(false);
+    this.toast.success('Configuración guardada');
+  }
+
+  saveConfigField(key: string, value: string): void {
+    try {
+      const stored = JSON.parse(localStorage.getItem(this.STORAGE_KEY) ?? '{}');
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify({ ...stored, [key]: value }));
+    } catch {
+      /* ignorar */
+    }
+  }
+
   setMode(mode: ChatMode): void {
     this.mode.set(mode);
     if (mode === 'agent' && this.promptPreset() === 'literario') {
@@ -153,6 +214,7 @@ export class AiChatComponent {
     this.selectedProvider.set(provider);
     this.selectedModel.set(provider.models[0]);
     this.apiKey = '';
+    this.saveConfigField('apiKey', '');
   }
 
   getEffectiveUrl(): string {
