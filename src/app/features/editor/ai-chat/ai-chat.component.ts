@@ -186,6 +186,11 @@ export class AiChatComponent {
     }
   }
 
+  clearCustomUrl(): void {
+    this.customUrl = '';
+    this.saveConfigField('customUrl', '');
+  }
+
   saveConfig(): void {
     this.showConfig.set(false);
     this.toast.success('Configuración guardada');
@@ -215,6 +220,11 @@ export class AiChatComponent {
     this.selectedModel.set(provider.models[0]);
     this.apiKey = '';
     this.saveConfigField('apiKey', '');
+    // Al cambiar de proveedor limpiamos la URL custom para evitar que quede basura
+    this.customUrl = '';
+    this.customModel = 'local-model';
+    this.saveConfigField('customUrl', '');
+    this.saveConfigField('customModel', 'local-model');
   }
 
   getEffectiveUrl(): string {

@@ -28,13 +28,19 @@
         <!-- URL personalizada (Colab / cualquier endpoint) -->
         @if (selectedProvider().customUrl) {
         <label class="config-label">URL del endpoint <span class="config-hint-inline">(OpenAI-compatible)</span></label>
-        <input class="config-input" type="text" [(ngModel)]="customUrl"
-            (ngModelChange)="saveConfigField('customUrl', $event)"
-            placeholder="https://xxxx-xx-xx.ngrok-free.app/v1/chat/completions" />
+        <div class="config-input-row">
+            <input class="config-input" type="text" [(ngModel)]="customUrl"
+                (ngModelChange)="saveConfigField('customUrl', $event)"
+                placeholder="https://tu-tunel.trycloudflare.com/v1/chat/completions" />
+            @if (customUrl) {
+            <button class="config-clear-btn" type="button" (click)="clearCustomUrl()" title="Limpiar URL">✕</button>
+            }
+        </div>
+        <p class="config-hint">Koboldcpp: pegá la URL de Cloudflare y agregá <code>/v1/chat/completions</code> al final.
+        </p>
         <label class="config-label">Nombre del modelo</label>
         <input class="config-input" type="text" [(ngModel)]="customModel"
             (ngModelChange)="saveConfigField('customModel', $event)" placeholder="ej: local-model, mistral, llama3" />
-        <p class="config-hint">Servidor levantado en Colab con API compatible con OpenAI (vLLM, llama.cpp, etc.)</p>
         } @else {
         <label class="config-label">Modelo</label>
         <select class="config-select" [ngModel]="selectedModel()" (ngModelChange)="selectedModel.set($event)">
