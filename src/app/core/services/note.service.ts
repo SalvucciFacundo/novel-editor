@@ -6,8 +6,6 @@ import {
   updateDoc,
   deleteDoc,
   getDocs,
-  query,
-  where,
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
@@ -26,10 +24,17 @@ export class NoteService {
     return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined)) as Partial<T>;
   }
 
+  private notesCol(novelId: string) {
+    return collection(this.firestore, 'novels', novelId, 'notes');
+  }
+
+  private noteDoc(novelId: string, noteId: string) {
+    return doc(this.firestore, 'novels', novelId, 'notes', noteId);
+  }
+
   async getNotes(novelId: string): Promise<Note[]> {
     if (this.authService.isGuest()) return this.guestStore.getNotes(novelId);
-    const q = query(collection(this.firestore, 'notes'), where('novelId', '==', novelId));
-    const snapshot = await getDocs(q);
+    const snapshot = await getDocs(this.notesCol(novelId));
     const notes = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Note);
     return notes.sort((a, b) => {
       const aTime = (a.updatedAt as unknown as Timestamp)?.toMillis?.() ?? 0;
@@ -40,7 +45,7 @@ export class NoteService {
 
   async create(data: NoteCreate): Promise<string> {
     if (this.authService.isGuest()) return this.guestStore.createNote(data);
-    const ref = await addDoc(collection(this.firestore, 'notes'), {
+    const ref = await addDoc(this.notesCol(data.novelId), {
       ...this.clean(data),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -48,22 +53,26 @@ export class NoteService {
     return ref.id;
   }
 
-  async update(id: string, data: Partial<Pick<Note, 'title' | 'content'>>): Promise<void> {
+  async update(
+    novelId: string,
+    id: string,
+    data: Partial<Pick<Note, 'title' | 'content'>>,
+  ): Promise<void> {
     if (this.authService.isGuest()) {
       this.guestStore.updateNote(id, data);
       return;
     }
-    await updateDoc(doc(this.firestore, 'notes', id), {
+    await updateDoc(this.noteDoc(novelId, id), {
       ...this.clean(data),
       updatedAt: serverTimestamp(),
     });
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(novelId: string, id: string): Promise<void> {
     if (this.authService.isGuest()) {
       this.guestStore.deleteNote(id);
       return;
     }
-    await deleteDoc(doc(this.firestore, 'notes', id));
+    await deleteDoc(this.noteDoc(novelId, id));
   }
 }

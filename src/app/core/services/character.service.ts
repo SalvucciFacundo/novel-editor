@@ -6,8 +6,6 @@ import {
   updateDoc,
   deleteDoc,
   getDocs,
-  query,
-  where,
   serverTimestamp,
 } from 'firebase/firestore';
 import { FIREBASE_FIRESTORE } from '../firebase.tokens';
@@ -21,22 +19,28 @@ export class CharacterService {
   private authService = inject(AuthService);
   private guestStore = inject(GuestStoreService);
 
-  /** Elimina las claves con valor undefined para que Firestore no las rechace */
   private clean<T extends object>(obj: T): Partial<T> {
     return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined)) as Partial<T>;
   }
 
+  private charactersCol(novelId: string) {
+    return collection(this.firestore, 'novels', novelId, 'characters');
+  }
+
+  private characterDoc(novelId: string, characterId: string) {
+    return doc(this.firestore, 'novels', novelId, 'characters', characterId);
+  }
+
   async getCharacters(novelId: string): Promise<Character[]> {
     if (this.authService.isGuest()) return this.guestStore.getCharacters(novelId);
-    const q = query(collection(this.firestore, 'characters'), where('novelId', '==', novelId));
-    const snapshot = await getDocs(q);
+    const snapshot = await getDocs(this.charactersCol(novelId));
     const characters = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Character);
     return characters.sort((a, b) => a.name.localeCompare(b.name));
   }
 
   async create(data: CharacterCreate): Promise<string> {
     if (this.authService.isGuest()) return this.guestStore.createCharacter(data);
-    const ref = await addDoc(collection(this.firestore, 'characters'), {
+    const ref = await addDoc(this.charactersCol(data.novelId), {
       ...this.clean(data),
       createdAt: serverTimestamp(),
     });
@@ -44,6 +48,7 @@ export class CharacterService {
   }
 
   async update(
+    novelId: string,
     id: string,
     data: Partial<Pick<Character, 'name' | 'role' | 'description' | 'traits'>>,
   ): Promise<void> {
@@ -51,14 +56,14 @@ export class CharacterService {
       this.guestStore.updateCharacter(id, data);
       return;
     }
-    await updateDoc(doc(this.firestore, 'characters', id), this.clean(data));
+    await updateDoc(this.characterDoc(novelId, id), this.clean(data));
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(novelId: string, id: string): Promise<void> {
     if (this.authService.isGuest()) {
       this.guestStore.deleteCharacter(id);
       return;
     }
-    await deleteDoc(doc(this.firestore, 'characters', id));
+    await deleteDoc(this.characterDoc(novelId, id));
   }
 }

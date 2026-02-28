@@ -67,8 +67,10 @@ export class NotesTabComponent {
   async saveEdit(): Promise<void> {
     const note = this.modalNote();
     if (!note || !this.editTitle.trim()) return;
+    const novelId = this.state.novelId();
+    if (!novelId) return;
     try {
-      await this.noteService.update(note.id, {
+      await this.noteService.update(novelId, note.id, {
         title: this.editTitle.trim(),
         content: this.editContent,
       });
@@ -78,20 +80,20 @@ export class NotesTabComponent {
     } catch {
       this.toast.error('No se pudo guardar la nota.');
     }
-    const novelId = this.state.novelId();
-    if (novelId) await this.load(novelId);
+    await this.load(novelId);
   }
 
   async deleteNote(id: string): Promise<void> {
+    const novelId = this.state.novelId();
+    if (!novelId) return;
     try {
-      await this.noteService.delete(id);
+      await this.noteService.delete(novelId, id);
       this.toast.success('Nota eliminada');
     } catch {
       this.toast.error('No se pudo eliminar la nota.');
     }
     this.closeModal();
-    const novelId = this.state.novelId();
-    if (novelId) await this.load(novelId);
+    await this.load(novelId);
   }
 
   startCreate(): void {

@@ -102,7 +102,12 @@ export class AiChatComponent {
   private editorState = inject(EditorStateService);
 
   readonly providers = PROVIDERS;
-  readonly promptPresetsKeys: PromptPreset[] = ['literario', 'agente', 'corrector', 'personalizado'];
+  readonly promptPresetsKeys: PromptPreset[] = [
+    'literario',
+    'agente',
+    'corrector',
+    'personalizado',
+  ];
   readonly promptPresetLabels: Record<PromptPreset, string> = {
     literario: '📖 Literario',
     agente: '🤖 Agente',
@@ -220,7 +225,7 @@ export class AiChatComponent {
     const preset = this.promptPreset();
     const basePrompt =
       preset === 'personalizado'
-        ? (this.customSystemPrompt.trim() || PROMPT_PRESETS.literario)
+        ? this.customSystemPrompt.trim() || PROMPT_PRESETS.literario
         : PROMPT_PRESETS[preset];
 
     return `${basePrompt}${contextBlock}`;
@@ -236,13 +241,12 @@ export class AiChatComponent {
     });
 
     const lastUserMsg = this.messages().slice(-1)[0];
-    const userContent: unknown =
-      imageBase64
-        ? [
-            { type: 'text', text: lastUserMsg.content },
-            { type: 'image_url', image_url: { url: imageBase64 } },
-          ]
-        : lastUserMsg.content;
+    const userContent: unknown = imageBase64
+      ? [
+          { type: 'text', text: lastUserMsg.content },
+          { type: 'image_url', image_url: { url: imageBase64 } },
+        ]
+      : lastUserMsg.content;
 
     const body = {
       model,

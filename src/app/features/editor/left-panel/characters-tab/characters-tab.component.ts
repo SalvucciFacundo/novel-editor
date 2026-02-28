@@ -107,12 +107,14 @@ export class CharactersTabComponent {
 
   async confirmEdit(id: string): Promise<void> {
     if (!this.editName.trim()) return;
+    const novelId = this.state.novelId();
+    if (!novelId) return;
     const traits = this.editTraits
       .split(',')
       .map((t) => t.trim())
       .filter(Boolean);
     try {
-      await this.characterService.update(id, {
+      await this.characterService.update(novelId, id, {
         name: this.editName.trim(),
         role: this.editRole.trim() || undefined,
         description: this.editDesc.trim() || undefined,
@@ -123,8 +125,7 @@ export class CharactersTabComponent {
       this.toast.error('No se pudo actualizar el personaje.');
     }
     this.editingId.set(null);
-    const novelId = this.state.novelId();
-    if (novelId) await this.load(novelId);
+    await this.load(novelId);
   }
 
   cancelEdit(): void {
@@ -133,13 +134,14 @@ export class CharactersTabComponent {
 
   async deleteCharacter(event: Event, id: string): Promise<void> {
     event.stopPropagation();
+    const novelId = this.state.novelId();
+    if (!novelId) return;
     try {
-      await this.characterService.delete(id);
+      await this.characterService.delete(novelId, id);
       this.toast.success('Personaje eliminado');
     } catch {
       this.toast.error('No se pudo eliminar el personaje.');
     }
-    const novelId = this.state.novelId();
-    if (novelId) await this.load(novelId);
+    await this.load(novelId);
   }
 }

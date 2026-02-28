@@ -6,8 +6,6 @@ import {
   updateDoc,
   deleteDoc,
   getDocs,
-  query,
-  where,
   serverTimestamp,
 } from 'firebase/firestore';
 import { FIREBASE_FIRESTORE } from '../firebase.tokens';
@@ -21,17 +19,26 @@ export class ChapterService {
   private authService = inject(AuthService);
   private guestStore = inject(GuestStoreService);
 
+  /** Referencia a la subcolección novels/{novelId}/chapters */
+  private chaptersCol(novelId: string) {
+    return collection(this.firestore, 'novels', novelId, 'chapters');
+  }
+
+  /** Referencia a un documento de capítulo */
+  private chapterDoc(novelId: string, chapterId: string) {
+    return doc(this.firestore, 'novels', novelId, 'chapters', chapterId);
+  }
+
   async getChapters(novelId: string): Promise<Chapter[]> {
     if (this.authService.isGuest()) return this.guestStore.getChapters(novelId);
-    const q = query(collection(this.firestore, 'chapters'), where('novelId', '==', novelId));
-    const snapshot = await getDocs(q);
+    const snapshot = await getDocs(this.chaptersCol(novelId));
     const chapters = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Chapter);
     return chapters.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   }
 
   async create(data: ChapterCreate): Promise<string> {
     if (this.authService.isGuest()) return this.guestStore.createChapter(data);
-    const ref = await addDoc(collection(this.firestore, 'chapters'), {
+    const ref = await addDoc(this.chaptersCol(data.novelId), {
       ...data,
       content: '',
       wordCount: 0,
@@ -41,7 +48,7 @@ export class ChapterService {
     return ref.id;
   }
 
-  async save(id: string, content: string): Promise<void> {
+  async save(novelId: string, id: string, content: string): Promise<void> {
     if (this.authService.isGuest()) {
       this.guestStore.saveChapter(id, content);
       return;
@@ -51,36 +58,36 @@ export class ChapterService {
       .trim()
       .split(/\s+/)
       .filter(Boolean).length;
-    await updateDoc(doc(this.firestore, 'chapters', id), {
+    await updateDoc(this.chapterDoc(novelId, id), {
       content,
       wordCount,
       updatedAt: serverTimestamp(),
     });
   }
 
-  async rename(id: string, title: string): Promise<void> {
+  async rename(novelId: string, id: string, title: string): Promise<void> {
     if (this.authService.isGuest()) {
       this.guestStore.renameChapter(id, title);
       return;
     }
-    await updateDoc(doc(this.firestore, 'chapters', id), { title, updatedAt: serverTimestamp() });
+    await updateDoc(this.chapterDoc(novelId, id), { title, updatedAt: serverTimestamp() });
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(novelId: string, id: string): Promise<void> {
     if (this.authService.isGuest()) {
       this.guestStore.deleteChapter(id);
       return;
     }
-    await deleteDoc(doc(this.firestore, 'chapters', id));
+    await deleteDoc(this.chapterDoc(novelId, id));
   }
 
-  async reorder(chapters: { id: string; order: number }[]): Promise<void> {
+  async reorder(novelId: string, chapters: { id: string; order: number }[]): Promise<void> {
     if (this.authService.isGuest()) {
       this.guestStore.reorderChapters(chapters);
       return;
     }
     await Promise.all(
-      chapters.map(({ id, order }) => updateDoc(doc(this.firestore, 'chapters', id), { order })),
+      chapters.map(({ id, order }) => updateDoc(this.chapterDoc(novelId, id), { order })),
     );
   }
 }

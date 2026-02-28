@@ -98,7 +98,11 @@ export class EditorComponent implements OnInit, OnDestroy {
     if (!chapter || !this.editorState.editor) return;
     this.editorState.saving.set(true);
     try {
-      await this.chapterService.save(chapter.id, this.editorState.editor.getHTML());
+      await this.chapterService.save(
+        this.editorState.novelId()!,
+        chapter.id,
+        this.editorState.editor.getHTML(),
+      );
       this.editorState.markSaved();
     } catch {
       this.toast.error('No se pudo guardar. Verificá tu conexión.');

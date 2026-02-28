@@ -87,8 +87,10 @@ export class ChaptersTabComponent {
 
   async confirmRename(id: string): Promise<void> {
     if (!this.renameTitle.trim()) return;
+    const novelId = this.state.novelId();
+    if (!novelId) return;
     try {
-      await this.chapterService.rename(id, this.renameTitle.trim());
+      await this.chapterService.rename(novelId, id, this.renameTitle.trim());
       const active = this.state.activeChapter();
       if (active?.id === id) {
         this.state.activeChapter.set({ ...active, title: this.renameTitle.trim() });
@@ -98,8 +100,7 @@ export class ChaptersTabComponent {
       this.toast.error('No se pudo renombrar el capítulo.');
     }
     this.renamingId.set(null);
-    const novelId = this.state.novelId();
-    if (novelId) await this.load(novelId);
+    await this.load(novelId);
   }
 
   cancelRename(): void {
@@ -108,38 +109,49 @@ export class ChaptersTabComponent {
 
   async deleteChapter(event: Event, id: string): Promise<void> {
     event.stopPropagation();
+    const novelId = this.state.novelId();
+    if (!novelId) return;
     try {
       if (this.state.activeChapter()?.id === id) {
         this.state.activeChapter.set(null);
       }
-      await this.chapterService.delete(id);
+      await this.chapterService.delete(novelId, id);
       this.toast.success('Capítulo eliminado');
     } catch {
       this.toast.error('No se pudo eliminar el capítulo.');
     }
-    const novelId = this.state.novelId();
-    if (novelId) await this.load(novelId);
+    await this.load(novelId);
   }
 
   async moveUp(event: Event, chapter: Chapter): Promise<void> {
     event.stopPropagation();
+    const novelId = this.state.novelId();
+    if (!novelId) return;
     const list = [...this.chapters()];
     const idx = list.findIndex((c) => c.id === chapter.id);
     if (idx <= 0) return;
     [list[idx - 1], list[idx]] = [list[idx], list[idx - 1]];
     list.forEach((c, i) => (c.order = i));
     this.chapters.set(list);
-    await this.chapterService.reorder(list.map((c) => ({ id: c.id, order: c.order })));
+    await this.chapterService.reorder(
+      novelId,
+      list.map((c) => ({ id: c.id, order: c.order })),
+    );
   }
 
   async moveDown(event: Event, chapter: Chapter): Promise<void> {
     event.stopPropagation();
+    const novelId = this.state.novelId();
+    if (!novelId) return;
     const list = [...this.chapters()];
     const idx = list.findIndex((c) => c.id === chapter.id);
     if (idx >= list.length - 1) return;
     [list[idx], list[idx + 1]] = [list[idx + 1], list[idx]];
     list.forEach((c, i) => (c.order = i));
     this.chapters.set(list);
-    await this.chapterService.reorder(list.map((c) => ({ id: c.id, order: c.order })));
+    await this.chapterService.reorder(
+      novelId,
+      list.map((c) => ({ id: c.id, order: c.order })),
+    );
   }
 }

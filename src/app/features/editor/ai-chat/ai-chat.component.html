@@ -56,8 +56,8 @@
         <label class="config-label">Perfil de escritura</label>
         <div class="config-preset-row">
             @for (key of promptPresetsKeys; track key) {
-            <button class="config-preset-btn" [class.active]="promptPreset() === key"
-                (click)="promptPreset.set(key)" type="button">
+            <button class="config-preset-btn" [class.active]="promptPreset() === key" (click)="promptPreset.set(key)"
+                type="button">
                 {{ promptPresetLabels[key] }}
             </button>
             }
