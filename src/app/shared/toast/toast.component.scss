@@ -1,0 +1,147 @@
+.toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9000;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.5rem;
+  pointer-events: none;
+  max-width: 360px;
+  width: calc(100vw - 2rem);
+
+  @media (max-width: 480px) {
+    bottom: 1rem;
+    right: 0.5rem;
+    left: 0.5rem;
+    width: auto;
+    max-width: none;
+  }
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.6rem;
+  background: #1a1a2e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid transparent;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.5),
+    0 1px 4px rgba(0, 0, 0, 0.3);
+  pointer-events: all;
+  position: relative;
+  overflow: hidden;
+  animation: toast-in 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  max-width: 100%;
+
+  &--success {
+    border-left-color: #22c55e;
+  }
+  &--error {
+    border-left-color: #ef4444;
+  }
+  &--warning {
+    border-left-color: #f59e0b;
+  }
+  &--info {
+    border-left-color: #3b82f6;
+  }
+
+  &__icon {
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    width: 1rem;
+    text-align: center;
+    margin-top: 0.05rem;
+    font-weight: 700;
+  }
+
+  &--success &__icon {
+    color: #22c55e;
+  }
+  &--error &__icon {
+    color: #ef4444;
+  }
+  &--warning &__icon {
+    color: #f59e0b;
+  }
+  &--info &__icon {
+    color: #3b82f6;
+  }
+
+  &__message {
+    flex: 1;
+    font-size: 0.8rem;
+    color: #e2e8f0;
+    line-height: 1.45;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  &__close {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.6rem;
+    cursor: pointer;
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.25rem;
+    flex-shrink: 0;
+    line-height: 1;
+    transition:
+      color 0.15s,
+      background 0.15s;
+    margin-top: -0.1rem;
+
+    &:hover {
+      color: #e2e8f0;
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  &__progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    animation: toast-progress linear forwards;
+    transform-origin: left;
+    border-radius: 0 0 0.6rem 0.6rem;
+  }
+
+  &--success &__progress {
+    background: #22c55e;
+  }
+  &--error &__progress {
+    background: #ef4444;
+  }
+  &--warning &__progress {
+    background: #f59e0b;
+  }
+  &--info &__progress {
+    background: #3b82f6;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(0.8rem) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes toast-progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}

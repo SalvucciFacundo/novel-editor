@@ -21,10 +21,17 @@ export class LoginComponent {
     this.authService.loginError.set(null);
     try {
       await this.authService.loginWithGoogle();
-      // signInWithRedirect() navega a Google — la página se va, loading queda en true
-    } catch (err) {
-      this.authService.loginError.set('No se pudo iniciar sesión. Intenta nuevamente.');
-      console.error(err);
+      // Con popup: la navegación ocurre dentro del servicio — el componente se destruye
+      // Con redirect fallback: la página navega a Google, loading queda en true
+    } catch (err: unknown) {
+      const code = (err as { code?: string })?.code;
+      const msg =
+        code === 'auth/popup-closed-by-user'
+          ? 'Cerrá la ventana antes de completar el inicio de sesión.'
+          : code === 'auth/cancelled-popup-request'
+            ? 'Ya hay una ventana de inicio de sesión abierta.'
+            : 'No se pudo iniciar sesión. Intentá nuevamente.';
+      this.authService.loginError.set(msg);
       this.loading.set(false);
     }
   }

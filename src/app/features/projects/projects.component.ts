@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { NovelService } from '../../core/services/novel.service';
 import { ThemeService } from '../../core/services/theme.service';
+import { ToastService } from '../../core/services/toast.service';
 import { Novel } from '../../models/novel.model';
 
 @Component({
@@ -18,6 +19,7 @@ export class ProjectsComponent {
   private novelService = inject(NovelService);
   private router = inject(Router);
   readonly themeService = inject(ThemeService);
+  private toast = inject(ToastService);
 
   readonly currentUser = this.authService.currentUser;
   readonly loading = signal(true);
@@ -92,9 +94,9 @@ export class ProjectsComponent {
         tags: [],
       });
 
-      // Recargar lista antes de navegar
       await this.loadNovels(uid);
       this.closeModal();
+      this.toast.success(`«Novelà creada correctamente`);
       this.router.navigate(['/editor', id]);
     } catch {
       this.modalError.set('No se pudo crear la novela. Intenta de nuevo.');
@@ -119,11 +121,12 @@ export class ProjectsComponent {
     this.modalLoading.set(true);
     try {
       await this.novelService.delete(novel.id);
+      this.toast.success(`«${novel.title}» eliminada`);
       this.cancelDelete();
-      // Recargar lista después de eliminar
       const uid = this.currentUser()?.uid;
       if (uid) await this.loadNovels(uid);
     } catch {
+      this.toast.error('No se pudo eliminar la novela. Intentá de nuevo.');
       this.cancelDelete();
     } finally {
       this.modalLoading.set(false);

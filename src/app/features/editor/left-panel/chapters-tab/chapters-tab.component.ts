@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@ang
 import { FormsModule } from '@angular/forms';
 import { ChapterService } from '../../../../core/services/chapter.service';
 import { EditorStateService } from '../../../../core/services/editor-state.service';
+import { ToastService } from '../../../../core/services/toast.service';
 import { Chapter } from '../../../../models/chapter.model';
 
 @Component({
@@ -14,6 +15,7 @@ import { Chapter } from '../../../../models/chapter.model';
 export class ChaptersTabComponent {
   private chapterService = inject(ChapterService);
   readonly state = inject(EditorStateService);
+  private toast = inject(ToastService);
 
   readonly chapters = signal<Chapter[]>([]);
   readonly creating = signal(false);
@@ -33,8 +35,8 @@ export class ChaptersTabComponent {
     try {
       const data = await this.chapterService.getChapters(novelId);
       this.chapters.set(data);
-    } catch (err) {
-      console.error('Error cargando capítulos:', err);
+    } catch {
+      this.toast.error('Error al cargar los capítulos.');
     }
   }
 
@@ -57,13 +59,17 @@ export class ChaptersTabComponent {
     if (!this.newTitle.trim()) return;
     const novelId = this.state.novelId();
     if (!novelId) return;
-
-    await this.chapterService.create({
-      novelId,
-      title: this.newTitle.trim(),
-      order: this.chapters().length,
-      content: '',
-    });
+    try {
+      await this.chapterService.create({
+        novelId,
+        title: this.newTitle.trim(),
+        order: this.chapters().length,
+        content: '',
+      });
+      this.toast.success('Capítulo creado');
+    } catch {
+      this.toast.error('No se pudo crear el capítulo.');
+    }
     this.creating.set(false);
     this.newTitle = '';
     await this.load(novelId);
@@ -81,10 +87,15 @@ export class ChaptersTabComponent {
 
   async confirmRename(id: string): Promise<void> {
     if (!this.renameTitle.trim()) return;
-    await this.chapterService.rename(id, this.renameTitle.trim());
-    const active = this.state.activeChapter();
-    if (active?.id === id) {
-      this.state.activeChapter.set({ ...active, title: this.renameTitle.trim() });
+    try {
+      await this.chapterService.rename(id, this.renameTitle.trim());
+      const active = this.state.activeChapter();
+      if (active?.id === id) {
+        this.state.activeChapter.set({ ...active, title: this.renameTitle.trim() });
+      }
+      this.toast.success('Capítulo renombrado');
+    } catch {
+      this.toast.error('No se pudo renombrar el capítulo.');
     }
     this.renamingId.set(null);
     const novelId = this.state.novelId();
@@ -97,10 +108,15 @@ export class ChaptersTabComponent {
 
   async deleteChapter(event: Event, id: string): Promise<void> {
     event.stopPropagation();
-    if (this.state.activeChapter()?.id === id) {
-      this.state.activeChapter.set(null);
+    try {
+      if (this.state.activeChapter()?.id === id) {
+        this.state.activeChapter.set(null);
+      }
+      await this.chapterService.delete(id);
+      this.toast.success('Capítulo eliminado');
+    } catch {
+      this.toast.error('No se pudo eliminar el capítulo.');
     }
-    await this.chapterService.delete(id);
     const novelId = this.state.novelId();
     if (novelId) await this.load(novelId);
   }

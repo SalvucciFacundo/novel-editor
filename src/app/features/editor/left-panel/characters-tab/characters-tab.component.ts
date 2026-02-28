@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@ang
 import { FormsModule } from '@angular/forms';
 import { CharacterService } from '../../../../core/services/character.service';
 import { EditorStateService } from '../../../../core/services/editor-state.service';
+import { ToastService } from '../../../../core/services/toast.service';
 import { Character } from '../../../../models/character.model';
 
 @Component({
@@ -14,6 +15,7 @@ import { Character } from '../../../../models/character.model';
 export class CharactersTabComponent {
   private characterService = inject(CharacterService);
   readonly state = inject(EditorStateService);
+  private toast = inject(ToastService);
 
   readonly characters = signal<Character[]>([]);
   readonly creating = signal(false);
@@ -57,8 +59,8 @@ export class CharactersTabComponent {
     try {
       const data = await this.characterService.getCharacters(novelId);
       this.characters.set(data);
-    } catch (err) {
-      console.error('Error cargando personajes:', err);
+    } catch {
+      this.toast.error('Error al cargar los personajes.');
     }
   }
 
@@ -77,12 +79,16 @@ export class CharactersTabComponent {
     if (!this.newName.trim()) return;
     const novelId = this.state.novelId();
     if (!novelId) return;
-
-    await this.characterService.create({
-      novelId,
-      name: this.newName.trim(),
-      role: this.newRole.trim() || undefined,
-    });
+    try {
+      await this.characterService.create({
+        novelId,
+        name: this.newName.trim(),
+        role: this.newRole.trim() || undefined,
+      });
+      this.toast.success('Personaje creado');
+    } catch {
+      this.toast.error('No se pudo crear el personaje.');
+    }
     this.creating.set(false);
     await this.load(novelId);
   }
@@ -105,12 +111,17 @@ export class CharactersTabComponent {
       .split(',')
       .map((t) => t.trim())
       .filter(Boolean);
-    await this.characterService.update(id, {
-      name: this.editName.trim(),
-      role: this.editRole.trim() || undefined,
-      description: this.editDesc.trim() || undefined,
-      traits: traits.length ? traits : undefined,
-    });
+    try {
+      await this.characterService.update(id, {
+        name: this.editName.trim(),
+        role: this.editRole.trim() || undefined,
+        description: this.editDesc.trim() || undefined,
+        traits: traits.length ? traits : undefined,
+      });
+      this.toast.success('Personaje actualizado');
+    } catch {
+      this.toast.error('No se pudo actualizar el personaje.');
+    }
     this.editingId.set(null);
     const novelId = this.state.novelId();
     if (novelId) await this.load(novelId);
@@ -122,7 +133,12 @@ export class CharactersTabComponent {
 
   async deleteCharacter(event: Event, id: string): Promise<void> {
     event.stopPropagation();
-    await this.characterService.delete(id);
+    try {
+      await this.characterService.delete(id);
+      this.toast.success('Personaje eliminado');
+    } catch {
+      this.toast.error('No se pudo eliminar el personaje.');
+    }
     const novelId = this.state.novelId();
     if (novelId) await this.load(novelId);
   }

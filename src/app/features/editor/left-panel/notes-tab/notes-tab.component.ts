@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { SlicePipe } from '@angular/common';
 import { NoteService } from '../../../../core/services/note.service';
 import { EditorStateService } from '../../../../core/services/editor-state.service';
+import { ToastService } from '../../../../core/services/toast.service';
 import { Note } from '../../../../models/note.model';
 
 @Component({
@@ -15,6 +16,7 @@ import { Note } from '../../../../models/note.model';
 export class NotesTabComponent {
   private noteService = inject(NoteService);
   readonly state = inject(EditorStateService);
+  private toast = inject(ToastService);
 
   readonly notes = signal<Note[]>([]);
   readonly modalNote = signal<Note | null>(null);
@@ -41,8 +43,8 @@ export class NotesTabComponent {
     try {
       const data = await this.noteService.getNotes(novelId);
       this.notes.set(data);
-    } catch (err) {
-      console.error('Error cargando notas:', err);
+    } catch {
+      this.toast.error('Error al cargar las notas.');
     }
   }
 
@@ -65,18 +67,28 @@ export class NotesTabComponent {
   async saveEdit(): Promise<void> {
     const note = this.modalNote();
     if (!note || !this.editTitle.trim()) return;
-    await this.noteService.update(note.id, {
-      title: this.editTitle.trim(),
-      content: this.editContent,
-    });
-    this.modalNote.set({ ...note, title: this.editTitle, content: this.editContent });
-    this.editing.set(false);
+    try {
+      await this.noteService.update(note.id, {
+        title: this.editTitle.trim(),
+        content: this.editContent,
+      });
+      this.modalNote.set({ ...note, title: this.editTitle, content: this.editContent });
+      this.editing.set(false);
+      this.toast.success('Nota actualizada');
+    } catch {
+      this.toast.error('No se pudo guardar la nota.');
+    }
     const novelId = this.state.novelId();
     if (novelId) await this.load(novelId);
   }
 
   async deleteNote(id: string): Promise<void> {
-    await this.noteService.delete(id);
+    try {
+      await this.noteService.delete(id);
+      this.toast.success('Nota eliminada');
+    } catch {
+      this.toast.error('No se pudo eliminar la nota.');
+    }
     this.closeModal();
     const novelId = this.state.novelId();
     if (novelId) await this.load(novelId);
@@ -92,11 +104,16 @@ export class NotesTabComponent {
     if (!this.newTitle.trim()) return;
     const novelId = this.state.novelId();
     if (!novelId) return;
-    await this.noteService.create({
-      novelId,
-      title: this.newTitle.trim(),
-      content: this.newContent,
-    });
+    try {
+      await this.noteService.create({
+        novelId,
+        title: this.newTitle.trim(),
+        content: this.newContent,
+      });
+      this.toast.success('Nota creada');
+    } catch {
+      this.toast.error('No se pudo crear la nota.');
+    }
     this.creating.set(false);
     await this.load(novelId);
   }

@@ -15,6 +15,7 @@ import { ChapterService } from '../../core/services/chapter.service';
 import { EditorStateService } from '../../core/services/editor-state.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ThemeService } from '../../core/services/theme.service';
+import { ToastService } from '../../core/services/toast.service';
 import { LeftPanelComponent } from './left-panel/left-panel.component';
 import { TextEditorComponent } from './text-editor/text-editor.component';
 import { AiChatComponent } from './ai-chat/ai-chat.component';
@@ -34,6 +35,7 @@ export class EditorComponent implements OnInit, OnDestroy {
   readonly editorState = inject(EditorStateService);
   private auth = inject(AuthService);
   readonly themeService = inject(ThemeService);
+  private toast = inject(ToastService);
 
   private destroy$ = new Subject<void>();
 
@@ -98,6 +100,8 @@ export class EditorComponent implements OnInit, OnDestroy {
     try {
       await this.chapterService.save(chapter.id, this.editorState.editor.getHTML());
       this.editorState.markSaved();
+    } catch {
+      this.toast.error('No se pudo guardar. Verificá tu conexión.');
     } finally {
       this.editorState.saving.set(false);
     }
